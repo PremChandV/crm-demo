@@ -1,0 +1,220 @@
+import 'dart:async';
+import 'dart:convert';
+import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+
+class MyLoginPage extends StatefulWidget {
+  const MyLoginPage({Key? key, required String title}) : super(key: key);
+
+  @override
+  // ignore: library_private_types_in_public_api
+  _MyLoginPageState createState() => _MyLoginPageState();
+}
+
+//'Login API' code starts from here...
+class _MyLoginPageState extends State<MyLoginPage> {
+  TextEditingController user = TextEditingController();
+  TextEditingController pass = TextEditingController();
+
+  String msg = '';
+
+  Future _login() async {
+    var response = await http
+        .post(Uri.parse("http://localhost/login/login.php"), headers: {
+      "Accept": "application/json",
+      "Access-Control-Allow-Origin": "*",
+    }, body: {
+      "email": user.text,
+      "password": pass.text,
+    });
+
+    //var datauser = json.decode(response.body);
+    var datauser = jsonDecode(response.body);
+
+    if (datauser.length == 0) {
+      setState(() {
+        msg = "Login Failed, Please check your Login Details..!";
+      });
+    } else {
+      if (datauser[0]['job_role'] == 'admin') {
+        // ignore: use_build_context_synchronously
+        Navigator.pushReplacementNamed(context, '/AdminPage');
+      } else if (datauser[0]['job_role'] == 'manager') {
+        // ignore: use_build_context_synchronously
+        Navigator.pushReplacementNamed(context, '/ManagerPage');
+      }
+
+      setState(() {
+        // ignore: unused_local_variable
+        var username = datauser[0]['lastname'];
+      });
+    }
+    return datauser;
+  }
+
+//'Login API' code ends here...
+  @override
+  Widget build(BuildContext context) {
+    //MediaQueryData deviceInfo = MediaQuery.of(context);
+
+    return Scaffold(
+//    'AppBar' code stars from here...
+      appBar: AppBar(
+        title: const Text("Login Page"),
+      ),
+//    'Body' part code stars from here...
+      body: Container(
+        //decoration: const BoxDecoration(color: Colors.black12),
+        margin: const EdgeInsets.symmetric(horizontal: 520.0, vertical: 100.0),
+        padding: const EdgeInsets.all(30.0),
+        decoration: BoxDecoration(
+            color: Colors.grey[300],
+            shape: BoxShape.rectangle,
+            borderRadius: BorderRadius.circular(10.0),
+            boxShadow: const [
+              BoxShadow(
+                  color: Colors.black,
+                  blurRadius: 3.0,
+                  offset: Offset(0.5, 0.5))
+            ]),
+        child: Center(
+          child: Column(
+            children: <Widget>[
+              //const Padding(padding: EdgeInsets.only(top: 30.0)),
+              const Text(
+                'Login',
+                style: TextStyle(
+                    shadows: <Shadow>[
+                      Shadow(
+                        offset: Offset(-1.0, 1.0),
+                        blurRadius: 2.0,
+                        color: Color.fromARGB(255, 0, 0, 0),
+                      ),
+                    ],
+                    color: Colors.blue,
+                    fontSize: 35.0,
+                    fontWeight: FontWeight.bold),
+              ),
+              const Padding(padding: EdgeInsets.only(top: 40.0)),
+              TextFormField(
+                controller: user,
+                decoration: InputDecoration(
+                  enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(15.0),
+                      borderSide: const BorderSide(color: Colors.black54)),
+                  labelText: "Username",
+                  hintText: "Enter Email Id here",
+                  hintStyle: const TextStyle(color: Colors.grey),
+                  prefixIcon: const Icon(
+                    Icons.person,
+                    color: Colors.black45,
+                  ),
+                  //fillColor: Colors.white12,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10.0),
+                    borderSide: const BorderSide(),
+                  ),
+                  //fillColor: Colors.green
+                ),
+                keyboardType: TextInputType.emailAddress,
+                style: const TextStyle(
+                  fontFamily: "Poppins",
+                  color: Colors.black,
+                ),
+              ),
+              const Padding(
+                padding: EdgeInsets.all(15.0),
+                //child: Text('Hello World!'),
+              ),
+              TextFormField(
+                controller: pass,
+                obscureText: true,
+                decoration: InputDecoration(
+                  enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12.0),
+                      borderSide: const BorderSide(color: Colors.black54)),
+                  labelText: "Password",
+                  hintText: "Enter Password here",
+                  hintStyle: const TextStyle(color: Colors.grey),
+                  prefixIcon: const Icon(
+                    //Icons.remove_red_eye,
+                    Icons.lock,
+                    color: Colors.black45,
+                  ),
+                  //fillColor: Colors.white12,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(15.0),
+                    borderSide: const BorderSide(),
+                  ),
+                  //fillColor: Colors.green
+                ),
+                style: const TextStyle(
+                  fontFamily: "Poppins",
+                  color: Colors.black,
+                ),
+              ),
+              const Padding(
+                padding: EdgeInsets.all(20.0),
+                //child: Text('Hello World!'),
+              ),
+              ElevatedButton(
+                /*style: ButtonStyle(
+                    //padding: const EdgeInsets.symmetric(horizontal: 40.0, vertical: 15.0),
+                    shadowColor: MaterialStateProperty.all<Color>(Colors.black),
+                    overlayColor: MaterialStateProperty.all(Colors.blue),
+                    foregroundColor: MaterialStateProperty.all(Colors.white),
+                    backgroundColor:
+                        MaterialStateProperty.all<Color>(Colors.blueGrey),
+                    padding: MaterialStateProperty.all(
+                      const EdgeInsets.symmetric(
+                          vertical: 15.0, horizontal: 40.0),
+                      /*side: MaterialStateProperty.all(
+                      const BorderSide(
+                        color: Colors.red,
+                          width: 2),*/
+                      //color: Colors.transparent,
+                    )), */
+                style: ElevatedButton.styleFrom(
+                  //foregroundColor: Colors.black,
+                  //backgroundColor: Colors.purple,
+                  shadowColor: Colors.black,
+                  elevation: 5,
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 40.0, vertical: 15.0),
+                ),
+                onPressed: () {
+                  _login();
+                },
+                child: const Text("Login",
+                    style:
+                        TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+              ),
+              const SizedBox(height: 30.0),
+              Text(
+                msg,
+                style: const TextStyle(
+                    fontSize: 18.0,
+                    color: Colors.red,
+                    fontWeight: FontWeight.bold),
+              )
+            ],
+          ),
+        ),
+      ),
+//    'Login API' code ends here...
+//    'Copyrights' code stars from here...
+      bottomNavigationBar: const BottomAppBar(
+          color: Colors.grey,
+          child: SizedBox(
+            width: 30.0,
+            height: 30.0,
+            child: Center(
+                child: Text(
+              "All rights are reserved @SSS - 2022",
+              textAlign: TextAlign.center,
+            )),
+          )),
+//    'Copyrights' code ends here...
+    );
+  }
+}

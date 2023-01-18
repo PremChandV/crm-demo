@@ -1,0 +1,604 @@
+// ignore_for_file: file_names, unnecessary_null_comparison, library_private_types_in_public_api, prefer_is_empty, duplicate_ignore
+import 'dart:math';
+import 'package:flutter/material.dart';
+//import '../main.dart';
+
+/*class AdminPage extends StatelessWidget {
+
+  const AdminPage({Key? key, required this.username}) : super(key: key);
+  final String username;
+
+  @override
+  Widget build(BuildContext context) {
+    var lastname;
+    return Scaffold(
+      appBar: AppBar(title: const Text("Welcome Admin"),),
+      body: Column(
+
+        children: <Widget>[
+          const Padding(padding: EdgeInsets.only(top: 40.0)),
+          Center(child: Text('Hello $lastname', style: const TextStyle(fontSize: 20.0),)),
+
+          const Padding(padding: EdgeInsets.only(top: 40.0)),
+
+          ElevatedButton(
+            child: const Text("Log Out"),
+            onPressed: (){
+              Navigator.pushReplacementNamed(context,'/MainPage');
+            },
+          ),
+        ],
+      ),
+
+    );
+  }
+} */
+
+class AdminPage extends StatefulWidget {
+  const AdminPage({Key? key}) : super(key: key);
+
+  @override
+  _AdminPageState createState() => _AdminPageState();
+}
+
+class _AdminPageState extends State<AdminPage>
+    with SingleTickerProviderStateMixin {
+  static const _mobileThreshold = 700.0;
+  bool isMobile = false;
+  bool sidebarOpen = false;
+  bool canBeDragged = false;
+
+  late GlobalKey _sidebarKey;
+
+  late AnimationController _animationController;
+  late Animation _animation;
+
+  final List<Map<String, dynamic>> tabData = [
+    {
+      'title': 'Chapter A',
+      'children': [
+        {'title': 'Chapter A1'},
+        {'title': 'Chapter A2'},
+      ],
+    },
+    {
+      'title': 'Chapter B',
+      'children': [
+        {'title': 'Chapter B1'},
+        {
+          'title': 'Chapter B2',
+          'children': [
+            {'title': 'Chapter B2a'},
+            {'title': 'Chapter B2b'},
+          ],
+        },
+      ],
+    },
+    {
+      'title': 'Chapter C',
+    },
+  ];
+  late String tab;
+  void setTab(String newTab) {
+    setState(() {
+      tab = newTab;
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _sidebarKey = GlobalKey();
+
+    _animationController = AnimationController(
+        vsync: this, duration: const Duration(milliseconds: 300));
+    _animation = CurvedAnimation(
+        parent: _animationController, curve: Curves.easeInOutQuad);
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final mediaQuery = MediaQuery.of(context);
+    setState(() {
+      isMobile = mediaQuery.size.width < _mobileThreshold;
+      sidebarOpen = !isMobile;
+      _animationController.value = isMobile ? 0 : 1;
+    });
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
+  }
+
+  void _toggleSidebar() {
+    setState(() {
+      sidebarOpen = !sidebarOpen;
+      if (sidebarOpen) {
+        _animationController.forward();
+      } else {
+        _animationController.reverse();
+      }
+    });
+  }
+
+  void onDragStart(DragStartDetails details) {
+    bool isClosed = _animationController.isDismissed;
+    bool isOpen = _animationController.isCompleted;
+    canBeDragged = (isClosed && details.globalPosition.dx < 60) || isOpen;
+  }
+
+  void onDragUpdate(DragUpdateDetails details) {
+    if (canBeDragged) {
+      double delta = details.primaryDelta! / 300;
+      _animationController.value += delta;
+    }
+  }
+
+  void dragCloseDrawer(DragUpdateDetails details) {
+    double? delta = details.primaryDelta;
+    if (delta! < 0) {
+      sidebarOpen = false;
+      _animationController.reverse();
+    }
+  }
+
+  void onDragEnd(DragEndDetails details) async {
+    double kMinFlingVelocity = 365.0;
+
+    if (details.velocity.pixelsPerSecond.dx.abs() >= kMinFlingVelocity) {
+      double visualVelocity = details.velocity.pixelsPerSecond.dx / 300;
+
+      await _animationController.fling(velocity: visualVelocity);
+      if (_animationController.isCompleted) {
+        setState(() {
+          sidebarOpen = true;
+        });
+      } else {
+        setState(() {
+          sidebarOpen = false;
+        });
+      }
+    } else {
+      if (_animationController.value < 0.5) {
+        _animationController.reverse();
+        setState(() {
+          sidebarOpen = false;
+        });
+      } else {
+        _animationController.forward();
+        setState(() {
+          sidebarOpen = true;
+        });
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    const textStyle = TextStyle(fontSize: 26);
+    final sidebar = Sidebar.fromJson(
+      key: _sidebarKey,
+      tabs: tabData,
+      onTabChanged: setTab,
+      activeTabIndices: const [],
+    );
+    final mainContent = Center(
+      child: tab != null
+          ? Text.rich(
+              TextSpan(
+                text: 'Selected tab: ',
+                style: textStyle,
+                children: [
+                  TextSpan(
+                    text: tab,
+                    style: textStyle.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+            )
+          : const Text(
+              'No tab selected',
+              style: textStyle,
+            ),
+    );
+
+    return Scaffold(
+      appBar: AppBar(
+        leading:
+            IconButton(icon: const Icon(Icons.menu), onPressed: _toggleSidebar),
+        title: const Text('Flutter Sidebar'),
+      ),
+      body: AnimatedBuilder(
+        animation: _animation,
+        builder: (_, __) => isMobile
+            ? Stack(
+                children: [
+                  GestureDetector(
+                    onHorizontalDragStart: onDragStart,
+                    onHorizontalDragUpdate: onDragUpdate,
+                    onHorizontalDragEnd: onDragEnd,
+                  ),
+                  mainContent,
+                  if (_animation.value > 0)
+                    Container(
+                      color: Colors.black
+                          .withAlpha((150 * _animation.value).toInt()),
+                    ),
+                  if (_animation.value == 1)
+                    GestureDetector(
+                      onTap: _toggleSidebar,
+                      onHorizontalDragUpdate: dragCloseDrawer,
+                    ),
+                  ClipRect(
+                    child: SizedOverflowBox(
+                      size: Size(300.0 * _animation.value, double.infinity),
+                      child: sidebar,
+                    ),
+                  ),
+                ],
+              )
+            : Row(
+                children: [
+                  ClipRect(
+                    child: SizedOverflowBox(
+                      size: Size(300.0 * _animation.value, double.infinity),
+                      child: sidebar,
+                    ),
+                  ),
+                  Expanded(child: mainContent),
+                ],
+              ),
+      ),
+    );
+  }
+}
+
+class Sidebar extends StatefulWidget {
+  final List<Map<String, dynamic>> tabs;
+  final void Function(String) onTabChanged;
+  final List<int> activeTabIndices;
+
+  /*const Sidebar({
+     Key? key,
+     required this.tabs,
+     required this.onTabChanged,
+     required this.activeTabIndices,
+   }) : super(key: key); */
+
+  const Sidebar.fromJson({
+    Key? key,
+    required this.tabs,
+    required this.onTabChanged,
+    required this.activeTabIndices,
+  }) : super(key: key);
+
+  @override
+  _SidebarState createState() => _SidebarState();
+}
+
+class _SidebarState extends State<Sidebar> with SingleTickerProviderStateMixin {
+  static const double _maxSidebarWidth = 300;
+  double _sidebarWidth = _maxSidebarWidth;
+  late List<int> activeTabIndices;
+
+  @override
+  void initState() {
+    super.initState();
+
+    Future.delayed(Duration.zero, () {
+      if (activeTabIndices == null) {
+        final newActiveTabData = _getFirstTabIndex(widget.tabs, []);
+        List<int>? newActiveTabIndices = newActiveTabData[0] as List<int>?;
+        Object tabId = newActiveTabData[1];
+        // ignore: prefer_is_empty
+        //var length;
+        if (newActiveTabIndices!.length > 0) {
+          setActiveTabIndices(newActiveTabIndices);
+          widget.onTabChanged(tabId);
+        }
+      }
+    });
+  }
+
+  List<Object> _getFirstTabIndex(
+      List<Map<String, dynamic>> tabs, List<int> indices) {
+    String tabId;
+    if (tabs.length > 0) {
+      Map<String, dynamic> firstTab = tabs[0];
+      tabId = firstTab['id'] ?? firstTab['title'];
+      indices.add(0);
+
+      if (firstTab['children'] != null) {
+        final tabData = _getFirstTabIndex(firstTab['children'], indices);
+        indices = tabData[0];
+        tabId = tabData[1];
+      }
+    }
+    return [
+      indices, /*tabId*/
+    ];
+  }
+
+  void setActiveTabIndices(List<int> newIndices) {
+    setState(() {
+      activeTabIndices = newIndices;
+    });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final mediaQuery = MediaQuery.of(context);
+    _sidebarWidth = min(mediaQuery.size.width * 0.7, _maxSidebarWidth);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      color: Theme.of(context).canvasColor,
+      width: _sidebarWidth,
+      child: Column(
+        children: [
+          SizedBox(
+            height: 150,
+            child: Container(color: Theme.of(context).primaryColor),
+          ),
+          Expanded(
+            child: Material(
+              child: ListView.builder(
+                itemBuilder: (BuildContext context, int index) => SidebarItem(
+                  widget.tabs[index],
+                  widget.onTabChanged,
+                  activeTabIndices,
+                  setActiveTabIndices,
+                  index: index,
+                  indices: const [],
+                ),
+                itemCount: widget.tabs.length,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class SidebarItem extends StatelessWidget {
+  final Map<String, dynamic> data;
+  final void Function(String) onTabChanged;
+  final List<int> activeTabIndices;
+  final void Function(List<int> newIndices) setActiveTabIndices;
+  final int index;
+  final List<int> indices;
+
+  const SidebarItem(
+    this.data,
+    this.onTabChanged,
+    this.activeTabIndices,
+    this.setActiveTabIndices, {
+    Key? key,
+    required this.index,
+    required this.indices,
+  })  : assert(
+          (index == null) || (indices == null),
+          'Exactly one parameter out of [index, indices] has to be provided',
+        ),
+        super(key: key);
+
+  bool _indicesMatch(List<int> a, List<int> b) {
+    for (int i = 0; i < min(a.length, b.length); i++) {
+      if (a[i] != b[i]) return false;
+    }
+    return true;
+  }
+
+  Widget _buildTiles(Map<String, dynamic> root) {
+    //final indices = indices ?? [index];
+    if (root['children'] == null) {
+      return ListTile(
+        selected: _indicesMatch(indices, activeTabIndices),
+        contentPadding:
+            EdgeInsets.only(left: 16.0 + 20.0 * (indices.length - 1)),
+        title: Text(root['title']),
+        onTap: () {
+          setActiveTabIndices(indices);
+          onTabChanged(root['id'] ?? root['title']);
+        },
+      );
+    }
+
+    List<Widget> children = [];
+    for (int i = 0; i < root['children'].length; i++) {
+      Map<String, dynamic> item = root['children'][i];
+      final itemIndices = [...indices, i];
+      children.add(
+        SidebarItem(
+          item,
+          onTabChanged,
+          activeTabIndices,
+          setActiveTabIndices,
+          indices: itemIndices,
+        ),
+      );
+    }
+
+    return CustomExpansionTile(
+      tilePadding: EdgeInsets.only(
+        left: 16.0 + 20.0 * (indices.length - 1),
+        right: 12.0,
+      ),
+      selected: _indicesMatch(indices, activeTabIndices),
+      title: Text(root['title']),
+      children: children,
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return _buildTiles(data);
+  }
+}
+
+class CustomExpansionTile extends StatefulWidget {
+  const CustomExpansionTile({
+    Key? key,
+    required this.leading,
+    required this.title,
+    required this.subtitle,
+    required this.onExpansionChanged,
+    this.children = const <Widget>[],
+    required this.trailing,
+    required this.selected,
+    this.initiallyExpanded = false,
+    this.maintainState = false,
+    required this.tilePadding,
+    required this.expandedCrossAxisAlignment,
+    required this.expandedAlignment,
+    required this.childrenPadding,
+  })  : assert(maintainState != null),
+        assert(
+          expandedCrossAxisAlignment != CrossAxisAlignment.baseline,
+          'CrossAxisAlignment.baseline is not supported since the expanded children '
+          'are aligned in a column, not a row. Try to use another constant.',
+        ),
+        super(key: key);
+
+  final Widget leading;
+  final Widget title;
+  final Widget subtitle;
+  final ValueChanged<bool> onExpansionChanged;
+  final List<Widget> children;
+  final Widget trailing;
+  final bool selected;
+  final bool initiallyExpanded;
+  final bool maintainState;
+  final EdgeInsetsGeometry tilePadding;
+  final Alignment expandedAlignment;
+  final CrossAxisAlignment expandedCrossAxisAlignment;
+  final EdgeInsetsGeometry childrenPadding;
+
+  @override
+  _CustomExpansionTileState createState() => _CustomExpansionTileState();
+}
+
+class _CustomExpansionTileState extends State<CustomExpansionTile>
+    with SingleTickerProviderStateMixin {
+  static final Animatable<double> _easeInTween =
+      CurveTween(curve: Curves.easeIn);
+  /*static final Animatable<double> _halfTween =
+      Tween<double>(begin: 0.0, end: 0.5); */
+  static const _expansionDuration = Duration(milliseconds: 200);
+
+  late AnimationController _controller;
+  //late Animation<double> _iconTurns;
+  late Animation<double> _heightFactor;
+
+  bool _isExpanded = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller =
+        AnimationController(duration: _expansionDuration, vsync: this);
+    _heightFactor = _controller.drive(_easeInTween);
+    /*_iconTurns = _controller.drive(_halfTween.chain(_easeInTween)); */
+
+    _isExpanded = PageStorage.of(context)?.readState(context)
+            as bool /*??
+        widget.initiallyExpanded*/
+        ;
+    if (_isExpanded) _controller.value = 1.0;
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void _handleTap() {
+    setState(() {
+      _isExpanded = !_isExpanded;
+      if (_isExpanded) {
+        _controller.forward();
+      } else {
+        _controller.reverse().then<void>((void value) {
+          if (!mounted) return;
+          setState(() {
+            // Rebuild without widget.children.
+          });
+        });
+      }
+      PageStorage.of(context)?.writeState(context, _isExpanded);
+    });
+    widget.onExpansionChanged(_isExpanded);
+  }
+
+  Widget _buildChildren(BuildContext context, Widget? child) {
+    return Container(
+      decoration: const BoxDecoration(
+        color: Colors.transparent,
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: <Widget>[
+          ListTile(
+              selected: widget.selected /*?? false*/,
+              onTap: _handleTap,
+              contentPadding: widget.tilePadding,
+              leading: widget.leading,
+              title: widget.title,
+              subtitle: widget.subtitle,
+              trailing: widget
+                  .trailing /*??
+                RotationTransition(
+                  turns: _iconTurns,
+                  child: const Icon(Icons.expand_more),
+                ), */
+              ),
+          ClipRect(
+            child: Align(
+              alignment: widget.expandedAlignment /*?? Alignment.center*/,
+              heightFactor: _heightFactor.value,
+              child: child,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final bool closed = !_isExpanded && _controller.isDismissed;
+    final bool shouldRemoveChildren = closed && !widget.maintainState;
+
+    final Widget result = Offstage(
+        offstage: closed,
+        child: TickerMode(
+          enabled: !closed,
+          child: Padding(
+            padding: widget.childrenPadding /*?? EdgeInsets.zero*/,
+            child: Column(
+              crossAxisAlignment: widget
+                  .expandedCrossAxisAlignment /*??
+                  CrossAxisAlignment.center*/
+              ,
+              children: widget.children,
+            ),
+          ),
+        ));
+
+    return AnimatedBuilder(
+      animation: _controller.view,
+      builder: _buildChildren,
+      child: shouldRemoveChildren ? null : result,
+    );
+  }
+}
