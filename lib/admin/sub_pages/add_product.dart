@@ -3,7 +3,6 @@ import 'dart:convert';
 import '../admin_page.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:easy_sidemenu/easy_sidemenu.dart';
 
 class AddProductPage extends StatefulWidget {
   const AddProductPage({
@@ -20,8 +19,6 @@ class AddProductsPageState extends State<AddProductPage> {
 
   //Create the (Global) Keys
   final GlobalKey<FormState> _formKey = GlobalKey();
-  final GlobalKey<ScaffoldState> _drawerscaffoldkey =
-      GlobalKey<ScaffoldState>();
 
   var appBarHeight = AppBar().preferredSize.height;
 
@@ -35,30 +32,14 @@ class AddProductsPageState extends State<AddProductPage> {
   String empId = "";
   String assignedTo = "";
 
-  String msg = "New User added Successfully..!";
-  String msgErr = "The User is already Exist..!";
-
-/*   var dob;
-  var gend;
-  var exten;
-  var regn;
-  var report; */
-
-  //bool _passwordVisible = true;
-
-  TextEditingController psw = TextEditingController();
-  TextEditingController dateinput = TextEditingController();
-
 //================================= 'Send Data' API ===============================
-  Future/*<UsersPage>*/ senddata() async {
-    //log('data: $firstName');
-
+  Future senddata() async {
     var response = await http
         .post(Uri.parse("http://localhost/crm/product_register.php"), headers: {
       "Accept": "application/json",
       "Access-Control-Allow-Origin": "*",
     }, body: {
-      "procuct_code": productCode,
+      "product_code": productCode,
       "product_name": productName,
       "quantity": quantity,
       "price": price,
@@ -78,11 +59,6 @@ class AddProductsPageState extends State<AddProductPage> {
               style: TextStyle(
                 fontWeight: FontWeight.bold,
               )),
-          /*content: SingleChildScrollView(
-            child: Column(
-              //children: const <Widget>[],
-            ),
-          ), */
           actions: <Widget>[
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -119,15 +95,9 @@ class AddProductsPageState extends State<AddProductPage> {
         jsonDecode(response.body); //Some Unexpected Exception here...
 
     if (datauser == 0) {
-      setState(() {
-        //msg = "The User is already Exist..!";
-        //print('data: $msg');
-      });
+      setState(() {});
     } else {
-      setState(() {
-        //msg = "New User added Successfully..!";
-        //print('data: $msgErr');
-      });
+      setState(() {});
     }
     return const AddProductPage(
       title: '',
@@ -142,33 +112,6 @@ class AddProductsPageState extends State<AddProductPage> {
       builder: (BuildContext context) {
         return AlertDialog(
           title: const Text('Are you sure to submit your data..?'),
-          /* content: SingleChildScrollView(
-            child: Column(
-              children: <Widget>[
-                const Align(
-                    alignment: Alignment.topLeft,
-                    child: Text("Full Name: ",
-                        style: TextStyle(fontWeight: FontWeight.w700))),
-                Align(
-                  alignment: Alignment.topLeft,
-                  //child: Text(firstName + " " + lastName),
-                  child: Text("$firstName $lastName"),
-                ),
-                const SizedBox(
-                  height: 10,
-                ),
-                const Align(
-                    alignment: Alignment.topLeft,
-                    child: Text("Email ID: ",
-                        style: TextStyle(fontWeight: FontWeight.w700))),
-                Align(
-                  alignment: Alignment.topLeft,
-                  // ignore: unnecessary_string_interpolations
-                  child: Text("$email"),
-                ),
-              ],
-            ),
-          ), */
           actions: <Widget>[
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -227,12 +170,9 @@ class AddProductsPageState extends State<AddProductPage> {
     );
   }
 
-//
-//
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-//
 //============================== Appbar code here... ==============================
         appBar: AppBar(title: const Text("Products Page"), actions: <Widget>[
           DropdownButtonHideUnderline(
@@ -278,176 +218,10 @@ class AddProductsPageState extends State<AddProductPage> {
             ),
           ),
         ]),
-//
-        body: Scaffold(
-          //second scaffold
-          key: _drawerscaffoldkey, //set gobal key defined above
-//======================================== Drawer code here... ==========================
 
-          drawer: Row(children: [
-            SideMenu(
-              //controller: sideMenu,
-              controller: page,
-              style: SideMenuStyle(
-                //showTooltip: false,
-                displayMode: SideMenuDisplayMode.auto,
-                hoverColor: Colors.blue[100],
-                selectedColor: Colors.blue,
-                selectedTitleTextStyle: const TextStyle(color: Colors.white),
-                selectedIconColor: Colors.white,
-                decoration: const BoxDecoration(
-                  //borderRadius: BorderRadius.all(Radius.circular(10)),
-                  color: Colors.black12,
-                  border: Border(
-                    right: BorderSide(
-                      color: Colors.black,
-                      width: 1.0,
-                    ),
-                  ),
-                  /*boxShadow: [
-                  BoxShadow(
-                    color: Colors.grey,
-                    offset: Offset(5.0, 0.0),
-                    blurRadius: 10.0,
-                    spreadRadius: 0.0,
-                  ),
-                ], */
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.white,
-                      offset: Offset(0.0, 0.0),
-                      blurRadius: 0.0,
-                      spreadRadius: 0.0,
-                    ),
-                  ],
-                  //backgroundBlendMode: BlendMode.color
-                ), /*backgroundColor: Colors.black12*/
-              ),
-              title: Column(
-                children: [
-                  const SizedBox(
-                    height: 10,
-                  ),
-                  ConstrainedBox(
-                    constraints: const BoxConstraints(
-                      maxHeight: 150,
-                      maxWidth: 150,
-                    ),
-                    child: Image.asset(
-                      'assets/images/crm_logo.png',
-                    ),
-                  ),
-                  const Divider(
-                    indent: 8.0,
-                    endIndent: 8.0,
-                  ),
-                ],
-              ),
-              footer: const Padding(
-                padding: EdgeInsets.all(8.0),
-                child: Text(
-                  '_____',
-                  style: TextStyle(fontSize: 15),
-                ),
-              ),
-              items: [
-                SideMenuItem(
-                  priority: 0,
-                  title: 'Dashboard',
-                  icon: const Icon(Icons.home),
-                  onTap: () {
-                    Navigator.pushReplacementNamed(context, '/AdminPage');
-                    //sideMenu.changePage(const AdminPage(title: 'Dashboard'));
-                    /*Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) =>
-                                const AdminPage(title: 'Admin Page')),
-                      ); */
-                  },
-                  /*badgeContent: const Text(
-                      '3',
-                      style: TextStyle(color: Colors.white),
-                    ), */
-                  tooltipContent: "Dashboard",
-                ),
-                SideMenuItem(
-                  priority: 1,
-                  title: 'Users',
-                  icon: const Icon(Icons.assignment_ind),
-                  //GestureDetector(
-                  onTap: () {
-                    //const UsersPage(title: 'title');
-                    //Navigator.pushReplacementNamed(context, '/UsersPage');
-                    //sideMenu.changePage('/UsersPage');
-                    //setState(() => const AdminUsersPage());
-                    /*Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => const UsersPage(title: 'Users'))); */
-                    /*Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => const UsersPage(
-                                  title: 'Users',
-                                )),
-                      ); */
-                  },
-                  //),
-                ),
-                SideMenuItem(
-                  priority: 2,
-                  title: 'Products',
-                  icon: const Icon(Icons.ballot),
-                  onTap: () {
-                    //sideMenu.changePage(const UsersPage(title: '',));
-                    Navigator.pushReplacementNamed(context, '/ProductsPage');
-                  },
-                  /*trailing: Container(
-                        decoration: const BoxDecoration(
-                            color: Colors.amber,
-                            borderRadius: BorderRadius.all(Radius.circular(6))),
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 6.0, vertical: 3),
-                          child: Text(
-                            'New',
-                            style: TextStyle(fontSize: 11, color: Colors.grey[800]),
-                          ),
-                        )), */
-                ),
-                SideMenuItem(
-                  priority: 3,
-                  title: 'Clients',
-                  icon: const Icon(Icons.supervisor_account),
-                  onTap: () {
-                    //sideMenu.changePage(page);
-                    Navigator.pushReplacementNamed(context, '/ClientsPage');
-                  },
-                ),
-                SideMenuItem(
-                  priority: 4,
-                  title: 'Reports',
-                  icon: const Icon(Icons.analytics),
-                  onTap: () {
-                    //sideMenu.changePage(page);
-                    Navigator.pushReplacementNamed(context, '/ReportsPage');
-                  },
-                ),
-                SideMenuItem(
-                  priority: 7,
-                  title: 'Payments',
-                  icon: const Icon(Icons.credit_card),
-                  onTap: () {
-                    //sideMenu.changePage(page);
-                    Navigator.pushReplacementNamed(context, '/PaymentsPage');
-                  },
-                ),
-              ],
-            ),
-          ]),
-//
 //====================================== Body Code Here... =============================
+//Second Scaffold
+        body: Scaffold(
           body: Center(
             child: SingleChildScrollView(
               // ignore: sort_child_properties_last
@@ -457,7 +231,7 @@ class AddProductsPageState extends State<AddProductPage> {
                   children: <Widget>[
                     const Align(
                       alignment: Alignment.topLeft,
-                      child: Text("Add Products Page",
+                      child: Text("Add Product",
                           style: TextStyle(
                             fontSize: 24,
                           )),
@@ -531,12 +305,12 @@ class AddProductsPageState extends State<AddProductPage> {
                             },
                             onFieldSubmitted: (value) {
                               setState(() {
-                                productName = value.capitalize();
+                                productName = value.capitalizeAllWord();
                               });
                             },
                             onChanged: (value) {
                               setState(() {
-                                productName = value.capitalize();
+                                productName = value.capitalizeAllWord();
                               });
                             },
                           ),
@@ -644,12 +418,12 @@ class AddProductsPageState extends State<AddProductPage> {
                             },
                             onFieldSubmitted: (value) {
                               setState(() {
-                                category = value.capitalize();
+                                category = value.capitalizeAllWord();
                               });
                             },
                             onChanged: (value) {
                               setState(() {
-                                category = value.capitalize();
+                                category = value.capitalizeAllWord();
                               });
                             },
                           ),
@@ -680,12 +454,12 @@ class AddProductsPageState extends State<AddProductPage> {
                             },
                             onFieldSubmitted: (value) {
                               setState(() {
-                                productDetails = value /*.capitalize()*/;
+                                productDetails = value.capitalizeAllWord();
                               });
                             },
                             onChanged: (value) {
                               setState(() {
-                                productDetails = value /*.capitalize()*/;
+                                productDetails = value.capitalizeAllWord();
                               });
                             },
                           ),
@@ -716,12 +490,12 @@ class AddProductsPageState extends State<AddProductPage> {
                             },
                             onFieldSubmitted: (value) {
                               setState(() {
-                                supplier = value /*.capitalize()*/;
+                                supplier = value.capitalizeAllWord();
                               });
                             },
                             onChanged: (value) {
                               setState(() {
-                                supplier = value /*.capitalize()*/;
+                                supplier = value.capitalizeAllWord();
                               });
                             },
                           ),
@@ -790,18 +564,18 @@ class AddProductsPageState extends State<AddProductPage> {
                             },
                             onFieldSubmitted: (value) {
                               setState(() {
-                                assignedTo = value.capitalize();
+                                assignedTo = value.capitalizeAllWord();
                               });
                             },
                             onChanged: (value) {
                               setState(() {
-                                assignedTo = value.capitalize();
+                                assignedTo = value.capitalizeAllWord();
                               });
                             },
                           ),
 //========================================= Submit Button Code... ===========================
                           const SizedBox(
-                            height: 30,
+                            height: 45.0,
                           ),
                           ElevatedButton(
                             style: ElevatedButton.styleFrom(

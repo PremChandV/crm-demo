@@ -403,105 +403,108 @@ class ReportsPageState extends State<ReportsPage> {
                     const SizedBox(
                       height: 30,
                     ),
-                    Form(
-                      key: _formKey,
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: <Widget>[
+                    Padding(
+                      padding: const EdgeInsets.all(25.0),
+                      child: Form(
+                        key: _formKey,
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: <Widget>[
 //============================ 'Product Code' code here ===============================
-                          TextFormField(
-                            keyboardType: TextInputType.number,
-                            decoration: const InputDecoration(
-                                labelText: 'Product Code',
-                                enabledBorder: OutlineInputBorder(
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(7.0)),
-                                  borderSide: BorderSide(
-                                      color: Colors.grey, width: 0.0),
-                                ),
-                                border: OutlineInputBorder()),
-                            validator: (value) {
-                              if (value == null ||
-                                  value.isEmpty ||
-                                  value.length < 4 ||
-                                  value.length > 4 ||
-                                  value.contains(RegExp(r'^[a-zA-Z\-]'))) {
-                                return 'Invalid Product Code..!';
-                              }
-                              return null;
-                            },
-                            onFieldSubmitted: (value) {
-                              setState(() {
-                                productCode = value;
-                              });
-                            },
-                            onChanged: (value) {
-                              setState(() {
-                                productCode = value;
-                              });
-                            },
-                          ),
-                          const SizedBox(
-                            height: 20,
-                          ),
+                            Padding(
+                              padding: const EdgeInsets.only(bottom: 30.0),
+                              child: TextFormField(
+                                keyboardType: TextInputType.number,
+                                decoration: const InputDecoration(
+                                    labelText: 'Product Code',
+                                    enabledBorder: OutlineInputBorder(
+                                      borderRadius:
+                                          BorderRadius.all(Radius.circular(7.0)),
+                                      borderSide: BorderSide(
+                                          color: Colors.grey, width: 0.0),
+                                    ),
+                                    border: OutlineInputBorder()),
+                                validator: (value) {
+                                  if (value == null ||
+                                      value.isEmpty ||
+                                      value.length < 4 ||
+                                      value.length > 4 ||
+                                      value.contains(RegExp(r'^[a-zA-Z\-]'))) {
+                                    return 'Invalid Product Code..!';
+                                  }
+                                  return null;
+                                },
+                                onFieldSubmitted: (value) {
+                                  setState(() {
+                                    productCode = value;
+                                  });
+                                },
+                                onChanged: (value) {
+                                  setState(() {
+                                    productCode = value;
+                                  });
+                                },
+                              ),
+                            ),
 //================================= 'Product Name' code here ===========================
-                          TextFormField(
-                            decoration: const InputDecoration(
-                                labelText: 'Product Name',
-                                enabledBorder: OutlineInputBorder(
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(7.0)),
-                                  borderSide: BorderSide(
-                                      color: Colors.grey, width: 0.0),
-                                ),
-                                border: OutlineInputBorder()),
-                            validator: (value) {
-                              if (value == null ||
-                                  value.isEmpty ||
-                                  value.length < 3) {
-                                return 'Invalid Product Name..!';
-                              } else if (value
-                                  .contains(RegExp(r'^[0-9_\-=@,\.;]+$'))) {
-                                return 'Product Name cannot contain special characters..!';
-                              }
-                              return null;
-                            },
-                            onFieldSubmitted: (value) {
-                              setState(() {
-                                productName = value.capitalize();
-                              });
-                            },
-                            onChanged: (value) {
-                              setState(() {
-                                productName = value.capitalize();
-                              });
-                            },
-                          ),
-                          const SizedBox(
-                            height: 20,
-                          ),
+                            Padding(
+                              padding: const EdgeInsets.only(bottom: 50.0),
+                              child: TextFormField(
+                                decoration: const InputDecoration(
+                                    labelText: 'Product Name',
+                                    enabledBorder: OutlineInputBorder(
+                                      borderRadius:
+                                          BorderRadius.all(Radius.circular(7.0)),
+                                      borderSide: BorderSide(
+                                          color: Colors.grey, width: 0.0),
+                                    ),
+                                    border: OutlineInputBorder()),
+                                validator: (value) {
+                                  if (value == null ||
+                                      value.isEmpty ||
+                                      value.length < 3) {
+                                    return 'Invalid Product Name..!';
+                                  } else if (value
+                                      .contains(RegExp(r'^[0-9_\-=@,\.;]+$'))) {
+                                    return 'Product Name cannot contain special characters..!';
+                                  }
+                                  return null;
+                                },
+                                onFieldSubmitted: (value) {
+                                  setState(() {
+                                    productName = value.capitalize();
+                                  });
+                                },
+                                onChanged: (value) {
+                                  setState(() {
+                                    productName = value.capitalize();
+                                  });
+                                },
+                              ),
+                            ),
 //========================================= Submit Button Code... ===========================
-                          const SizedBox(
-                            height: 30,
-                          ),
-                          ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                                minimumSize: const Size.fromHeight(60)),
-                            onPressed: () {
-                              // Validate returns true if the form is valid, or false otherwise.
-                              //_submit();
-                              if (_formKey.currentState!.validate()) {
-                                submit();
-                                //senddata();
-                              }
-                            },
-                            child: const Text("Submit",
-                                style: TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                )),
-                          ),
-                        ],
+                            Padding(
+                              padding: const EdgeInsets.only(bottom: 30.0),
+                              child: ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                    minimumSize: const Size.fromHeight(60)),
+                                onPressed: () {
+                                  // Validate returns true if the form is valid, or false otherwise.
+                                  //_submit();
+                                  if (_formKey.currentState!.validate()) {
+                                    submit();
+                                    //senddata();
+                                  }
+                                },
+                                child: const Text("Submit",
+                                    style: TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                    )),
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ],

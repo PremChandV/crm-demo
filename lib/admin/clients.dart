@@ -1,18 +1,21 @@
+// ignore_for_file: unused_field, constant_identifier_names, prefer_final_fields
 import 'dart:io';
 import 'dart:async';
 import 'dart:convert';
 import 'admin_page.dart';
-import 'sub_pages/add_product.dart';
+import 'sub_pages/add_client.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'sub_pages/AddUpdateClient.dart';
 import 'package:easy_sidemenu/easy_sidemenu.dart';
-import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
 class ClientsPage extends StatefulWidget {
   const ClientsPage({
     Key? key,
     required String title,
   }) : super(key: key);
+
+  final String title = "Flutter DataTable";
 
   @override
   ClientsPageState createState() => ClientsPageState();
@@ -23,13 +26,25 @@ class ClientsPageState extends State<ClientsPage> {
   SideMenuController sideMenu = SideMenuController();
 
   //Create the (Global) Keys
-  final GlobalKey<FormState> _formKey = GlobalKey();
+  // final GlobalKey<FormState> _formKey = GlobalKey();
   final GlobalKey<ScaffoldState> _drawerscaffoldkey =
       GlobalKey<ScaffoldState>();
+  // late GlobalKey<ScaffoldState> _scaffoldKey;
+  final ScrollController horizontal = ScrollController(),
+      vertical = ScrollController();
 
   var appBarHeight = AppBar().preferredSize.height;
 
-  String clientId = "";
+  int _currentSortColumn = 0;
+  bool _isAscending = true;
+  late bool _isUpdating;
+  late Clients _selectedClient;
+  late String _titleProgress;
+  late List<Clients> _clients;
+  late TextEditingController _organizeCodeController;
+  late TextEditingController _organizeNameController;
+
+/*   String clientId = "";
   String orgCode = "";
   String orgName = "";
   String phoneNo = "";
@@ -41,226 +56,56 @@ class ClientsPageState extends State<ClientsPage> {
   String regTo = "";
   String regDate = "";
   String sector = "";
-  String socialLinks = "";
-
-//================================= 'Get/Fetch Data' API ===============================
-  ProductDataSource? _productDataSource;
-  List<GridColumn>? _columns;
-
-//bool _isSortAsc = true;
-
-  Future<dynamic> generateUserList() async {
-    var url = 'http://localhost/crm/get_clients.php';
-    final response = await http.get(
-      Uri.parse(url),
-    );
-    var list = json.decode(response.body);
-
-    // Convert the JSON to List collection.
-    // ignore: no_leading_underscores_for_local_identifiers
-    List<Client> _products =
-        await list.map<Client>((json) => Client.fromJson(json)).toList();
-    _productDataSource = ProductDataSource(_products);
-    return _products;
-  }
-
-  List<GridColumn> getColumns() {
-    return <GridColumn>[
-      GridColumn(
-          columnName: 'client_id',
-          width: 100,
-          label: Container(
-              padding: const EdgeInsets.all(16.0),
-              alignment: Alignment.center,
-              child: const Text(
-                'Client ID',
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ))),
-      GridColumn(
-          columnName: 'org_code',
-          width: 80,
-          label: Container(
-              padding: const EdgeInsets.all(8.0),
-              alignment: Alignment.center,
-              child: const Text(
-                'Company Code',
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ))),
-      GridColumn(
-          columnName: 'org_name',
-          width: 80,
-          label: Container(
-              padding: const EdgeInsets.all(8.0),
-              alignment: Alignment.center,
-              child: const Text(
-                'Company Name',
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ))),
-      GridColumn(
-          columnName: 'phone_no',
-          width: 120,
-          label: Container(
-              padding: const EdgeInsets.all(8.0),
-              alignment: Alignment.center,
-              child: const Text(
-                'Phone No.',
-                //overflow: TextOverflow.ellipsis,
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ))),
-      GridColumn(
-          columnName: 'fax',
-          label: Container(
-              padding: const EdgeInsets.all(8.0),
-              alignment: Alignment.center,
-              child: const Text(
-                'Fax',
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ))),
-      GridColumn(
-          columnName: 'email_id',
-          label: Container(
-              padding: const EdgeInsets.all(8.0),
-              alignment: Alignment.center,
-              child: const Text(
-                'Email ID',
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ))),
-      GridColumn(
-          columnName: 'website',
-          label: Container(
-              padding: const EdgeInsets.all(8.0),
-              alignment: Alignment.center,
-              child: const Text(
-                'Website',
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ))),
-      GridColumn(
-          columnName: 'address',
-          label: Container(
-              padding: const EdgeInsets.all(8.0),
-              alignment: Alignment.center,
-              child: const Text(
-                'Address',
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ))),
-      GridColumn(
-          columnName: 'reg_no',
-          label: Container(
-              padding: const EdgeInsets.all(8.0),
-              alignment: Alignment.center,
-              child: const Text(
-                'Registration No.',
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ))),
-      GridColumn(
-          columnName: 'reg_to',
-          label: Container(
-              padding: const EdgeInsets.all(8.0),
-              alignment: Alignment.center,
-              child: const Text(
-                'Registered To',
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ))),
-      GridColumn(
-          columnName: 'reg_date',
-          label: Container(
-              padding: const EdgeInsets.all(8.0),
-              alignment: Alignment.center,
-              child: const Text(
-                'Registration Date',
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ))),
-      GridColumn(
-          columnName: 'sector',
-          label: Container(
-              padding: const EdgeInsets.all(8.0),
-              alignment: Alignment.center,
-              child: const Text(
-                'Sector',
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ))),
-      GridColumn(
-          columnName: 'social_links',
-          label: Container(
-              padding: const EdgeInsets.all(8.0),
-              alignment: Alignment.center,
-              child: const Text(
-                'Social Links',
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ))),
-    ];
-  }
+  String socialLinks = ""; */
 
   @override
   void initState() {
     super.initState();
-    _columns = getColumns();
+    _clients = [];
+    _isUpdating = false;
+    _titleProgress = widget.title;
+    // _scaffoldKey = GlobalKey();
+    _organizeCodeController = TextEditingController();
+    _organizeNameController = TextEditingController();
+    _getClients();
   }
 
-//=============================== 'Submit()' function code ==============================
-  void submit() {
-    showDialog<void>(
-      context: context,
-      barrierDismissible: false, // user can tap anywhere to close the pop up
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Are you sure to submit this data..?'),
-          actions: <Widget>[
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: <Widget>[
-                TextButton(
-                  style: TextButton.styleFrom(
-                    padding: const EdgeInsets.only(
-                        left: 40.0, top: 20.0, right: 40.0, bottom: 20.0),
-                    foregroundColor: Colors.white,
-                    backgroundColor: Colors.grey,
-                    shape: const RoundedRectangleBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(10))),
-                  ),
-                  child: const Text('Cancel',
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                      )),
-                  onPressed: () async {
-                    FocusScope.of(context)
-                        .unfocus(); // unfocus last selected input field
-                    Navigator.pop(
-                        context); //To revert back to the previous state
-                  }, // so the alert dialog is closed when navigating back to main page
-                ),
-                TextButton(
-                  style: TextButton.styleFrom(
-                    padding: const EdgeInsets.only(
-                        left: 45.0, top: 20.0, right: 45.0, bottom: 20.0),
-                    foregroundColor: Colors.white,
-                    backgroundColor: Colors.blue,
-                    shape: const RoundedRectangleBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(10))),
-                  ),
-                  child: const Text('OK',
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                      )),
-                  onPressed: () {
-                    setState(() {
-                      //msg = "The User is already Existing..!";
-                      //log('data: $msg');
-                      //senddata();
-                    });
-                    Navigator.of(context).pop(); // Close the dialog
-                    FocusScope.of(context)
-                        .unfocus(); // Unfocus the last selected input field
-                    _formKey.currentState?.reset(); // Empty the form fields
-                  },
-                )
-              ],
-            ),
-            const SizedBox(height: 10.0)
-          ],
-        );
-      },
-    );
+  _setValues(Clients client) {
+    _organizeCodeController.text = client.orgCode;
+    _organizeNameController.text = client.orgName;
+    setState(() {
+      _isUpdating = true;
+    });
+  }
+
+  _showProgress(String message) {
+    setState(() {
+      _titleProgress = message;
+    });
+  }
+
+  _getClients() {
+    _showProgress('Loading Clients...');
+    Services.getClients().then((clients) {
+      setState(() {
+        // _products = products.cast<Products>();
+        _clients = clients;
+      });
+      _showProgress(widget.title);
+      debugPrint("Length: ${clients.length}");
+    });
+  }
+
+  _deleteClient(Clients clients) {
+    _showProgress('Deleting Product...');
+    Services.deleteClient(clients.clientId).then((result) {
+      if ('success' == result) {
+        setState(() {
+          _clients.remove(clients);
+        });
+        _getClients();
+      }
+    });
   }
 
   @override
@@ -332,7 +177,6 @@ class ClientsPageState extends State<ClientsPage> {
         //second scaffold
         key: _drawerscaffoldkey, //set gobal key defined above
 //======================================== Drawer code here... ==========================
-
         drawer: Row(children: [
           SideMenu(
             //controller: sideMenu,
@@ -384,7 +228,6 @@ class ClientsPageState extends State<ClientsPage> {
                 ),
               ],
             ),
-
             items: [
               SideMenuItem(
                 priority: 0,
@@ -408,7 +251,7 @@ class ClientsPageState extends State<ClientsPage> {
               SideMenuItem(
                 priority: 2,
                 title: 'Product Management',
-                onTap: (page, _) {
+                onTap: () {
                   Navigator.pushReplacementNamed(context, '/ProductsPage');
                 },
                 icon: const Icon(Icons.ballot),
@@ -441,7 +284,7 @@ class ClientsPageState extends State<ClientsPage> {
           ),
         ]),
 //
-//====================================== Body Code Here... =============================
+//====================================== 'Main Body' Code Here... =============================
         body: SingleChildScrollView(
           child: Padding(
             //padding: const EdgeInsets.all(16.0),
@@ -455,58 +298,312 @@ class ClientsPageState extends State<ClientsPage> {
                         fontSize: 24,
                       )),
                 ),
+                Padding(
+                  padding: const EdgeInsets.only(left: 400.0),
+                  child: Row(
+                    //mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      OutlinedButton(
+                        style: TextButton.styleFrom(
+                          foregroundColor: Colors.blueGrey,
+                          side: const BorderSide(
+                            color: Colors.black26,
+                            width: 0.5,
+                          ),
+                          padding: const EdgeInsets.symmetric(
+                              vertical: 16.0, horizontal: 20.0),
+                        ),
+                        onPressed: () {
+                          //_submit();
+                          Navigator.of(context).push(MaterialPageRoute(
+                              builder: (context) => const AddClientPage(
+                                    title: '',
+                                  )));
+                          /* Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => const AddClientPage(
+                                      title: '',
+                                    )),
+                          ); */
+                        },
+                        child: const Text("Add Client",
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            )),
+                      ),
+                      const SizedBox(
+                        width: 100.0,
+                      ),
+                      OutlinedButton(
+                        style: TextButton.styleFrom(
+                          foregroundColor: Colors.blueGrey,
+                          side: const BorderSide(
+                            color: Colors.black26,
+                            width: 0.5,
+                          ),
+                          padding: const EdgeInsets.symmetric(
+                              vertical: 16.0, horizontal: 20.0),
+                        ),
+                        onPressed: () {
+                          _getClients();
+                        },
+                        child: const Text("Refresh",
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            )),
+                      ),
+                    ],
+                  ),
+                ),
                 const SizedBox(
                   height: 30,
                 ),
-                Container(
-                  padding: const EdgeInsets.only(left: 15.0),
-                  height: 450.0,
-                  /* constraints: const BoxConstraints(
-                      maxHeight: double.infinity,
-                    ), */
-                  child: FutureBuilder (
-                      future: generateUserList(),
-                      builder: (context, data) {
-                        return data.hasData
-                            ? SfDataGrid(
-                                allowPullToRefresh: true,
-                                source: _productDataSource!,
-                                columns: _columns!,
-                                columnWidthMode: ColumnWidthMode.auto,
-                                gridLinesVisibility: GridLinesVisibility.both,
-                              )
-                            : const Center(
-                                child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                value: 0.7,
-                              ));
-                      }),
+                Scrollbar(
+                  thickness: 5,
+                  controller: horizontal,
+                  trackVisibility: true,
+                  child: SingleChildScrollView(
+                    controller: horizontal,
+                    scrollDirection: Axis.horizontal,
+                    child: DataTable(
+                      sortColumnIndex: _currentSortColumn,
+                      sortAscending: _isAscending,
+                      showCheckboxColumn: true,
+                      border: TableBorder.all(
+                        width: 1.0,
+                        color: Colors.black45,
+                      ),
+                      headingRowColor: MaterialStateProperty.resolveWith(
+                          (states) => Colors.blueGrey),
+                      headingTextStyle: const TextStyle(
+                          fontWeight: FontWeight.bold, color: Colors.white),
+                      columns: const [
+                        /* DataColumn(
+                              label: Text(
+                                "LINE NO. #",
+                              ),
+                              numeric: false,
+                              tooltip: "This is the Line No."), */
+                        DataColumn(
+                          label: Text("CLIENT ID"),
+                          numeric: false,
+                          /* onSort: (int columnIndex, bool ascending) {
+                              setState(() {
+                                _currentSortColumn = columnIndex;
+                                if (_isAscending == true) {
+                                  _isAscending = false;
+                                  // sort the products list in Ascending, order by ID
+                                  _clients.sort((productA, productB) =>
+                                      productB.clientId
+                                          .compareTo(productA.clientId));
+                                } else {
+                                  _isAscending = true;
+                                  // sort the products list in Descending, order by ID
+                                  _clients.sort((productA, productB) =>
+                                      productA.clientId
+                                          .compareTo(productB.clientId));
+                                }
+                              });
+                            } */
+                        ),
+                        DataColumn(
+                          label: Text(
+                            "ORGANIZATION CODE",
+                          ),
+                          numeric: false,
+                        ),
+                        DataColumn(
+                          label: Text("ORGANIZATION NAME"),
+                          numeric: false,
+                        ),
+                        DataColumn(label: Text("PHONE"), numeric: false),
+                        DataColumn(label: Text("FAX"), numeric: false),
+                        DataColumn(label: Text("EMAIL"), numeric: false),
+                        DataColumn(label: Text("WEBSITE"), numeric: false),
+                        DataColumn(label: Text("ADDRESS"), numeric: false),
+                        DataColumn(
+                            label: Text("REGISTRATION NO"), numeric: false),
+                        DataColumn(
+                            label: Text("REGISTRATION TO"), numeric: false),
+                        DataColumn(
+                            label: Text("REGISTRATION DATE"), numeric: false),
+                        DataColumn(label: Text("SECTOR"), numeric: false),
+                        DataColumn(label: Text("SOCIAL LINKS"), numeric: false),
+                        DataColumn(
+                            label: Text("ACTIONS"),
+                            numeric: false,
+                            tooltip: "Related Actions"),
+                      ],
+                      rows: _clients
+                          .map(
+                            (client) => DataRow(
+                              cells: [
+                                DataCell(
+                                  Text(client.clientId),
+                                  /* onTap: () {
+                                    debugPrint("Tapped ${client.clientId}");
+                                    /* Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) =>
+                                                const AddUpdateClientPage())); */
+                                    Navigator.of(context).push(
+                                        MaterialPageRoute(
+                                            builder: (context) =>
+                                                const AddUpdateClientPage()));
+                                    _setValues(client);
+                                    _selectedClient = client;
+                                  }, */
+                                ),
+                                DataCell(
+                                  Text(
+                                    client.orgCode,
+                                  ),
+                                  onTap: () {
+                                    _setValues(client);
+                                    _selectedClient = client;
+                                  },
+                                ),
+                                DataCell(
+                                  Text(
+                                    client.orgName /* .toUpperCase() */,
+                                  ),
+                                  onTap: () {
+                                    _setValues(client);
+                                    _selectedClient = client;
+                                  },
+                                ),
+                                DataCell(
+                                  Text(
+                                    client.phoneNo,
+                                  ),
+                                  onTap: () {
+                                    _setValues(client);
+                                    _selectedClient = client;
+                                  },
+                                ),
+                                DataCell(
+                                  Text(
+                                    client.fax,
+                                  ),
+                                  onTap: () {
+                                    _setValues(client);
+                                    _selectedClient = client;
+                                  },
+                                ),
+                                DataCell(
+                                  Text(
+                                    client.emailId,
+                                  ),
+                                  onTap: () {
+                                    _setValues(client);
+                                    _selectedClient = client;
+                                  },
+                                ),
+                                DataCell(
+                                  Text(
+                                    client.webSite,
+                                  ),
+                                  onTap: () {
+                                    _setValues(client);
+                                    _selectedClient = client;
+                                  },
+                                ),
+                                DataCell(
+                                  Text(
+                                    client.address,
+                                  ),
+                                  onTap: () {
+                                    _setValues(client);
+                                    _selectedClient = client;
+                                  },
+                                ),
+                                DataCell(
+                                  Text(
+                                    client.regNo,
+                                  ),
+                                  onTap: () {
+                                    _setValues(client);
+                                    _selectedClient = client;
+                                  },
+                                ),
+                                DataCell(
+                                  Text(
+                                    client.regTo,
+                                  ),
+                                  onTap: () {
+                                    _setValues(client);
+                                    _selectedClient = client;
+                                  },
+                                ),
+                                DataCell(
+                                  Text(
+                                    client.regDate,
+                                  ),
+                                  onTap: () {
+                                    _setValues(client);
+                                    _selectedClient = client;
+                                  },
+                                ),
+                                DataCell(
+                                  Text(
+                                    client.sector,
+                                  ),
+                                  onTap: () {
+                                    _setValues(client);
+                                    _selectedClient = client;
+                                  },
+                                ),
+                                DataCell(
+                                  Text(
+                                    client.socialLinks,
+                                  ),
+                                  onTap: () {
+                                    _setValues(client);
+                                    _selectedClient = client;
+                                  },
+                                ),
+                                DataCell(
+                                  Row(
+                                    children: [
+                                      IconButton(
+                                        icon: const Icon(Icons.edit),
+                                        onPressed: () {
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                                builder: (context) =>
+                                                    const AddUpdateClientPage()),
+                                          );
+                                          debugPrint("Edit Mode Enabled...");
+                                        },
+                                      ),
+                                      IconButton(
+                                        icon: const Icon(Icons.delete),
+                                        onPressed: () {
+                                          _deleteClient(client);
+                                          debugPrint("Data Row Deleted...");
+                                        },
+                                      ),
+                                    ],
+                                  ),
+                                  /* onTap: () {
+                                      // print("Tapped 'Delete' Action");
+                                      debugPrint("Data Row Deleted...");
+                                    }, */
+                                ),
+                              ],
+                            ),
+                          )
+                          .toList(),
+                    ),
+                  ),
                 ),
                 const SizedBox(
                   height: 35,
-                ),
-                SizedBox(
-                  width: 150,
-                  height: 50,
-                  child: ElevatedButton(
-                    /* style: ElevatedButton.styleFrom(
-                        //minimumSize: const Size.fromHeight(60),
-                        maximumSize: const Size.fromWidth(35),
-                      ), */
-                    onPressed: () {
-                      // Validate returns true if the form is valid, or false otherwise.
-                      //_submit();
-                      Navigator.of(context).push(MaterialPageRoute(
-                          builder: (context) => const AddProductPage(
-                                title: '',
-                              )));
-                    },
-                    child: const Text("Add Client",
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        )),
-                  ),
                 ),
               ],
             ),
@@ -531,73 +628,103 @@ class ClientsPageState extends State<ClientsPage> {
   }
 }
 
-class ProductDataSource extends DataGridSource {
-  /// Creates the employee data source class with required details.
-  ProductDataSource(this.clients) {
-    buildDataGridRow();
+//
+//============================= Services Class Code =================================
+class Services {
+  static const ROOT = 'http://localhost/crm/client_actions.php';
+  static const String _GET_ACTION = 'GET_ALL';
+  static const String _ADD_CLIENT_ACTION = 'ADD_CLIENT';
+  static const String _UPDATE_CLIENT_ACTION = 'UPDATE_CLIENT';
+  static const String _DELETE_CLIENT_ACTION = 'DELETE_CLIENT';
+
+  static Future<List<Clients>> getClients() async {
+    try {
+      // var map = new Map<String, dynamic>();
+      var map = <String, dynamic>{};
+      map["action"] = _GET_ACTION;
+      final response = await http.post(Uri.parse(ROOT), body: map);
+      debugPrint("getProducts >> Response:: ${response.body}");
+      if (response.statusCode == 200) {
+        List<Clients> list = parsePhotos(response.body);
+        return list;
+      } else {
+        // throw List<Employee>();
+        throw <Clients>[];
+      }
+    } catch (e) {
+      // return List<Employee>();
+      return <Clients>[];
+    }
   }
 
-  void buildDataGridRow() {
-    _clientDataGridRows = clients
-        .map<DataGridRow>((c) => DataGridRow(cells: [
-              //DataGridCell<int>(columnName: 'client_id', value: c.clientId),
-              DataGridCell<int>(columnName: 'org_code', value: c.orgCode),
-              DataGridCell<String>(columnName: 'org_name', value: c.orgName),
-              DataGridCell<int>(columnName: 'phone_no', value: c.phoneNo),
-              DataGridCell<String>(columnName: 'fax', value: c.fax),
-              DataGridCell<String>(columnName: 'email_id', value: c.emailId),
-              DataGridCell<String>(columnName: 'website', value: c.webSite),
-              DataGridCell<String>(columnName: 'address', value: c.address),
-              DataGridCell<int>(columnName: 'reg_no', value: c.regNo),
-              DataGridCell<String>(columnName: 'reg_to', value: c.regTo),
-              DataGridCell<String>(columnName: 'reg_date', value: c.regDate),
-              DataGridCell<String>(columnName: 'sector', value: c.sector),
-              DataGridCell<String>(
-                  columnName: 'social_links', value: c.socialLinks),
-            ]))
-        .toList();
+  static List<Clients> parsePhotos(String responseBody) {
+    final parsed = json.decode(responseBody).cast<Map<String, dynamic>>();
+    return parsed.map<Clients>((json) => Clients.fromJson(json)).toList();
   }
 
-  List<Client> clients = [];
-
-  List<DataGridRow> _clientDataGridRows = [];
-
-  @override
-  List<DataGridRow> get rows => _clientDataGridRows;
-
-  @override
-  DataGridRowAdapter buildRow(DataGridRow row) {
-    return DataGridRowAdapter(
-        cells: row.getCells().map<Widget>((c) {
-      return Container(
-        alignment: Alignment.center,
-        padding: const EdgeInsets.all(8.0),
-        child: Text(c.value.toString()),
-      );
-    }).toList());
+  static Future<String> addClient(String firstName, String lastName) async {
+    try {
+      // var map = new Map<String, dynamic>();
+      var map = <String, dynamic>{};
+      map["action"] = _ADD_CLIENT_ACTION;
+      map["firstname"] = firstName;
+      map["lastname"] = lastName;
+      final response = await http.post(Uri.parse(ROOT), body: map);
+      debugPrint("addClient >> Response:: ${response.body}");
+      return response.body;
+    } catch (e) {
+      return 'error';
+    }
   }
 
-  void updateDataGrid() {
-    notifyListeners();
+  static Future<String> updateClient(
+      String productId, String firstName, String lastName) async {
+    try {
+      // var map = new Map<String, dynamic>();
+      var map = <String, dynamic>{};
+      map["action"] = _UPDATE_CLIENT_ACTION;
+      // map["client_id"] = clientId;
+      map["firstname"] = firstName;
+      map["lastname"] = lastName;
+      final response = await http.post(Uri.parse(ROOT), body: map);
+      debugPrint("updateClient >> Response:: ${response.body}");
+      return response.body;
+    } catch (e) {
+      return 'error';
+    }
+  }
+
+  static Future<String> deleteClient(String clientId) async {
+    try {
+      // var map = new Map<String, dynamic>();
+      var map = <String, dynamic>{};
+      map["action"] = _DELETE_CLIENT_ACTION;
+      map["client_id"] = clientId;
+      final response = await http.post(Uri.parse(ROOT), body: map);
+      debugPrint("deleteClient >> Response:: ${response.body}");
+      return response.body;
+    } catch (e) {
+      return 'error';
+    }
   }
 }
 
-class Client {
-  int clientId;
-  int orgCode;
+class Clients {
+  /* int */ String clientId;
+  /* int */ String orgCode;
   String orgName;
-  int phoneNo;
+  /* int */ String phoneNo;
   String fax;
   String emailId;
   String webSite;
   String address;
-  int regNo;
+  /* int */ String regNo;
   String regTo;
   String regDate;
   String sector;
   String socialLinks;
 
-  Client({
+  Clients({
     required this.clientId,
     required this.orgCode,
     required this.orgName,
@@ -613,17 +740,21 @@ class Client {
     required this.socialLinks,
   });
 
-  factory Client.fromJson(Map<String, dynamic> json) {
-    return Client(
-      clientId: int.parse(json['client_id']),
-      orgCode: int.parse(json['org_code']),
+  factory Clients.fromJson(Map<String, dynamic> json) {
+    return Clients(
+      // clientId: int.parse(json['client_id']),
+      clientId: json['client_id'],
+      // orgCode: int.parse(json['org_code']),
+      orgCode: json['org_code'],
       orgName: json['org_name'] as String,
-      phoneNo: int.parse(json['phone_no']),
+      // phoneNo: int.parse(json['phone_no']),
+      phoneNo: json['phone_no'],
       fax: json['fax'] as String,
       emailId: json['email_id'] as String,
       webSite: json['website'] as String,
       address: json['address'] as String,
-      regNo: int.parse(json['reg_no']),
+      // regNo: int.parse(json['reg_no']),
+      regNo: json['reg_no'],
       regTo: json['reg_to'] as String,
       regDate: json['reg_date'] as String,
       sector: json['sector'] as String,

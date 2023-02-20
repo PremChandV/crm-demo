@@ -1,18 +1,21 @@
+// ignore_for_file: constant_identifier_names, unused_field, prefer_final_fields
 import 'dart:io';
+// import 'dart:math';
 import 'dart:async';
 import 'dart:convert';
 import 'admin_page.dart';
 import 'sub_pages/add_product.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'sub_pages/AddUpdateProduct.dart';
 import 'package:easy_sidemenu/easy_sidemenu.dart';
-import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
 class ProductsPage extends StatefulWidget {
   const ProductsPage({
     Key? key,
-    required String title,
   }) : super(key: key);
+
+  final String title = "Flutter DataTable";
 
   @override
   ProductsPageState createState() => ProductsPageState();
@@ -22,14 +25,37 @@ class ProductsPageState extends State<ProductsPage> {
   PageController page = PageController();
   SideMenuController sideMenu = SideMenuController();
 
+  /* // static const _GET_ALL_ACTION = 'GET_ALL';
+  // int _currentSortColumn = 0;
+  // Generate a list of fiction prodcts
+  /* final List<Map> _products = List.generate(30, (i) {
+    return {
+      "product_id": i,
+      "firstname": "Product $i",
+      "product": Random().nextInt(200) + 1
+    };
+  }); */ */
+
   //Create the (Global) Keys
-  final GlobalKey<FormState> _formKey = GlobalKey();
+  // final GlobalKey<FormState> _formKey = GlobalKey();
   final GlobalKey<ScaffoldState> _drawerscaffoldkey =
       GlobalKey<ScaffoldState>();
+  // late GlobalKey<ScaffoldState> _scaffoldKey;
+  final ScrollController horizontal = ScrollController(),
+      vertical = ScrollController();
 
   var appBarHeight = AppBar().preferredSize.height;
 
-  String productCode = "";
+  int _currentSortColumn = 0;
+  bool _isAscending = true;
+  late bool _isUpdating;
+  late Products _selectedProduct;
+  late String _titleProgress;
+  late List<Products> _products;
+  late TextEditingController _productCodeController;
+  late TextEditingController _productNameController;
+
+/*   String productCode = "";
   String productName = "";
   String quantity = "";
   String price = "";
@@ -37,253 +63,56 @@ class ProductsPageState extends State<ProductsPage> {
   String productDetails = "";
   String supplier = "";
   String empId = "";
-  String assignedTo = "";
-
-//================================= 'Send Data' API ===============================
-  /* Future/*<UsersPage>*/ senddata() async {
-    //log('data: $firstName');
-
-    var response = await http
-        .post(Uri.parse("http://localhost/crm/product_register.php"), headers: {
-      "Accept": "application/json",
-      "Access-Control-Allow-Origin": "*",
-    }, body: {
-      "procuct_code": productCode,
-      "product_name": productName,
-      "quantity": quantity,
-      "price": price,
-      "category": category,
-      "product_details": productDetails,
-      "supplier": supplier,
-      "emp_id": empId,
-      "assigned_to": assignedTo
-    }); */
-
-  ProductDataSource? _productDataSource;
-  List<GridColumn>? _columns;
-
-//bool _isSortAsc = true;
-
-  Future<dynamic> generateUserList() async {
-    var url = 'http://localhost/crm/get_products.php';
-    final response = await http.get(
-      Uri.parse(url),
-    );
-    var list = json.decode(response.body);
-
-    // Convert the JSON to List collection.
-    // ignore: no_leading_underscores_for_local_identifiers
-    List<Product> _products =
-        await list.map<Product>((json) => Product.fromJson(json)).toList();
-    _productDataSource = ProductDataSource(_products);
-    return _products;
-  }
-
-  List<GridColumn> getColumns() {
-    return <GridColumn>[
-      GridColumn(
-          columnName: 'product_id',
-          width: 100,
-          label: Container(
-              padding: const EdgeInsets.all(16.0),
-              alignment: Alignment.center,
-              child: const Text(
-                'Product ID',
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ))),
-      GridColumn(
-          columnName: 'procuct_code',
-          width: 80,
-          label: Container(
-              padding: const EdgeInsets.all(8.0),
-              alignment: Alignment.center,
-              child: const Text(
-                'Product Code',
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ))),
-      GridColumn(
-          columnName: 'product_name',
-          width: 80,
-          label: Container(
-              padding: const EdgeInsets.all(8.0),
-              alignment: Alignment.center,
-              child: const Text(
-                'Product Name',
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ))),
-      GridColumn(
-          columnName: 'quantity',
-          width: 120,
-          label: Container(
-              padding: const EdgeInsets.all(8.0),
-              alignment: Alignment.center,
-              child: const Text(
-                'Quantity',
-                //overflow: TextOverflow.ellipsis,
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ))),
-      GridColumn(
-          columnName: 'price',
-          label: Container(
-              padding: const EdgeInsets.all(8.0),
-              alignment: Alignment.center,
-              child: const Text(
-                'Price',
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ))),
-      GridColumn(
-          columnName: 'category',
-          label: Container(
-              padding: const EdgeInsets.all(8.0),
-              alignment: Alignment.center,
-              child: const Text(
-                'Category',
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ))),
-      GridColumn(
-          columnName: 'product_details',
-          label: Container(
-              padding: const EdgeInsets.all(8.0),
-              alignment: Alignment.center,
-              child: const Text(
-                'Product Details',
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ))),
-      GridColumn(
-          columnName: 'supplier',
-          label: Container(
-              padding: const EdgeInsets.all(8.0),
-              alignment: Alignment.center,
-              child: const Text(
-                'Supplier',
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ))),
-      GridColumn(
-          columnName: 'emp_id',
-          label: Container(
-              padding: const EdgeInsets.all(8.0),
-              alignment: Alignment.center,
-              child: const Text(
-                'Employee ID',
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ))),
-      GridColumn(
-          columnName: 'assigned_to',
-          label: Container(
-              padding: const EdgeInsets.all(8.0),
-              alignment: Alignment.center,
-              child: const Text(
-                'Assigned To',
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ))),
-    ];
-  }
+  String assignedTo = ""; */
 
   @override
   void initState() {
     super.initState();
-    _columns = getColumns();
+    _products = [];
+    _isUpdating = false;
+    _titleProgress = widget.title;
+    // _scaffoldKey = GlobalKey();
+    _productCodeController = TextEditingController();
+    _productNameController = TextEditingController();
+    _getProducts();
   }
 
-//=============================== 'Submit()' function code ==============================
-  void submit() {
-    showDialog<void>(
-      context: context,
-      barrierDismissible: false, // user can tap anywhere to close the pop up
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Are you sure to submit this data..?'),
-          content: SingleChildScrollView(
-            child: Column(
-              children: const <Widget>[
-                /*const Align(
-                    alignment: Alignment.topLeft,
-                    child: Text("Full Name: ",
-                        style: TextStyle(fontWeight: FontWeight.w700))),
-                Align(
-                  alignment: Alignment.topLeft,
-                  //child: Text(firstName + " " + lastName),
-                  child: Text("$firstName $lastName"),
-                ), 
-                const SizedBox(
-                  height: 10,
-                ),
-                /*const Align(
-                    alignment: Alignment.topLeft,
-                    child: Text("Gender:",
-                        style: TextStyle(fontWeight: FontWeight.w700))),
-                Align(
-                  alignment: Alignment.topLeft,
-                  child: Text("$gender ${gen == 1 ? "ºC" : "ºF"}"),
-                ) */
-                const Align(
-                    alignment: Alignment.topLeft,
-                    child: Text("Email ID: ",
-                        style: TextStyle(fontWeight: FontWeight.w700))),
-                Align(
-                  alignment: Alignment.topLeft,
-                  // ignore: unnecessary_string_interpolations
-                  child: Text("$email"),
-                ), */
-              ],
-            ),
-          ),
-          actions: <Widget>[
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: <Widget>[
-                TextButton(
-                  style: TextButton.styleFrom(
-                    padding: const EdgeInsets.only(
-                        left: 40.0, top: 20.0, right: 40.0, bottom: 20.0),
-                    foregroundColor: Colors.white,
-                    backgroundColor: Colors.grey,
-                    shape: const RoundedRectangleBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(10))),
-                  ),
-                  child: const Text('Cancel',
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                      )),
-                  onPressed: () async {
-                    FocusScope.of(context)
-                        .unfocus(); // unfocus last selected input field
-                    Navigator.pop(
-                        context); //To revert back to the previous state
-                  }, // so the alert dialog is closed when navigating back to main page
-                ),
-                TextButton(
-                  style: TextButton.styleFrom(
-                    padding: const EdgeInsets.only(
-                        left: 45.0, top: 20.0, right: 45.0, bottom: 20.0),
-                    foregroundColor: Colors.white,
-                    backgroundColor: Colors.blue,
-                    shape: const RoundedRectangleBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(10))),
-                  ),
-                  child: const Text('OK',
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                      )),
-                  onPressed: () {
-                    setState(() {
-                      //msg = "The User is already Existing..!";
-                      //log('data: $msg');
-                      //senddata();
-                    });
-                    Navigator.of(context).pop(); // Close the dialog
-                    FocusScope.of(context)
-                        .unfocus(); // Unfocus the last selected input field
-                    _formKey.currentState?.reset(); // Empty the form fields
-                  },
-                )
-              ],
-            ),
-            const SizedBox(height: 10.0)
-          ],
-        );
-      },
-    );
+  _setValues(Products product) {
+    // _productCodeController.text = product.productCode;
+    _productNameController.text = product.productName;
+    setState(() {
+      _isUpdating = true;
+    });
+  }
+
+  _showProgress(String message) {
+    setState(() {
+      _titleProgress = message;
+    });
+  }
+
+  _getProducts() {
+    _showProgress('Loading Products...');
+    Services.getProducts().then((products) {
+      setState(() {
+        // _products = products.cast<Products>();
+        _products = products;
+      });
+      _showProgress(widget.title);
+      debugPrint("Length: ${products.length}");
+    });
+  }
+
+  _deleteProduct(Products products) {
+    _showProgress('Deleting Product...');
+    Services.deleteProduct(products.productId).then((result) {
+      if ('success' == result) {
+        setState(() {
+          _products.remove(products);
+        });
+        _getProducts();
+      }
+    });
   }
 
   @override
@@ -355,76 +184,6 @@ class ProductsPageState extends State<ProductsPage> {
         //second scaffold
         key: _drawerscaffoldkey, //set gobal key defined above
 //======================================== Drawer code here... ==========================
-        /* drawer: Drawer(
-          child: ListView(
-            padding: EdgeInsets.zero,
-            children: [
-              const DrawerHeader(
-                decoration: BoxDecoration(
-                  color: Colors.blue,
-                ),
-                child: Text('Drawer Header'),
-              ),
-              ListTile(
-                leading: const Icon(
-                  Icons.home,
-                ),
-                title: const Text('Dashboard'),
-                onTap: () {
-                  //Navigator.pop(context, const AdminPage(title: 'Admin Page'));
-                  Navigator.pushReplacementNamed(context, '/AdminPage');
-                },
-              ),
-              ListTile(
-                leading: const Icon(
-                  Icons.assignment_ind,
-                ),
-                title: const Text('Users'),
-                onTap: () {
-                  Navigator.pop(context);
-                },
-              ),
-              ListTile(
-                leading: const Icon(
-                  Icons.ballot,
-                ),
-                title: const Text('Products'),
-                onTap: () {
-                  //Navigator.pop(context);
-                  Navigator.pushReplacementNamed(context, '/ProductsPage');
-                },
-              ),
-              ListTile(
-                leading: const Icon(
-                  Icons.supervisor_account,
-                ),
-                title: const Text('Clients'),
-                onTap: () {
-                  //Navigator.pop(context);
-                  Navigator.pushReplacementNamed(context, '/ClientsPage');
-                },
-              ),
-              ListTile(
-                leading: const Icon(
-                  Icons.analytics,
-                ),
-                title: const Text('Reports'),
-                onTap: () {
-                  Navigator.pushReplacementNamed(context, '/ReportsPage');
-                },
-              ),
-              ListTile(
-                leading: const Icon(
-                  Icons.credit_card,
-                ),
-                title: const Text('Payments'),
-                onTap: () {
-                  Navigator.pushReplacementNamed(context, '/PaymentsPage');
-                },
-              ),
-            ],
-          ),
-        ), */
         drawer: Row(children: [
           SideMenu(
             //controller: sideMenu,
@@ -445,14 +204,6 @@ class ProductsPageState extends State<ProductsPage> {
                     width: 1.0,
                   ),
                 ),
-                /*boxShadow: [
-                  BoxShadow(
-                    color: Colors.grey,
-                    offset: Offset(5.0, 0.0),
-                    blurRadius: 10.0,
-                    spreadRadius: 0.0,
-                  ),
-                ], */
                 boxShadow: [
                   BoxShadow(
                     color: Colors.white,
@@ -508,23 +259,8 @@ class ProductsPageState extends State<ProductsPage> {
                 icon: const Icon(Icons.assignment_ind),
                 //GestureDetector(
                 onTap: () {
-                  //const UsersPage(title: 'title');
                   Navigator.pushReplacementNamed(context, '/UsersPage');
-                  //sideMenu.changePage('/UsersPage');
-                  //setState(() => const AdminUsersPage());
-                  /*Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => const UsersPage(title: 'Users'))); */
-                  /*Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => const UsersPage(
-                                  title: 'Users',
-                                )),
-                      ); */
                 },
-                //),
               ),
               SideMenuItem(
                 priority: 2,
@@ -564,387 +300,6 @@ class ProductsPageState extends State<ProductsPage> {
         ]),
 //
 //====================================== Body Code Here... =============================
-        /* body: Center(
-          child: SingleChildScrollView(
-            // ignore: sort_child_properties_last
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                children: <Widget>[
-                  const Align(
-                    alignment: Alignment.topLeft,
-                    child: Text("Add Products Page",
-                        style: TextStyle(
-                          fontSize: 24,
-                        )),
-                  ),
-                  const SizedBox(
-                    height: 30,
-                  ),
-                  Form(
-                    key: _formKey,
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: <Widget>[
-//============================ 'Product Code' code here ===============================
-                        TextFormField(
-                          keyboardType: TextInputType.number,
-                          decoration: const InputDecoration(
-                              labelText: 'Product Code',
-                              enabledBorder: OutlineInputBorder(
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(7.0)),
-                                borderSide:
-                                    BorderSide(color: Colors.grey, width: 0.0),
-                              ),
-                              border: OutlineInputBorder()),
-                          validator: (value) {
-                            if (value == null ||
-                                value.isEmpty ||
-                                value.length < 4 ||
-                                value.length > 4 ||
-                                value.contains(RegExp(r'^[a-zA-Z\-]'))) {
-                              return 'Invalid Product Code..!';
-                            }
-                            return null;
-                          },
-                          onFieldSubmitted: (value) {
-                            setState(() {
-                              productCode = value;
-                            });
-                          },
-                          onChanged: (value) {
-                            setState(() {
-                              productCode = value;
-                            });
-                          },
-                        ),
-                        const SizedBox(
-                          height: 20,
-                        ),
-//================================= 'Product Name' code here ===========================
-                        TextFormField(
-                          //controller: pass,
-                          decoration: const InputDecoration(
-                              labelText: 'Product Name',
-                              enabledBorder: OutlineInputBorder(
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(7.0)),
-                                borderSide:
-                                    BorderSide(color: Colors.grey, width: 0.0),
-                              ),
-                              border: OutlineInputBorder()),
-                          validator: (value) {
-                            if (value == null ||
-                                value.isEmpty ||
-                                value.length < 3) {
-                              return 'Invalid Product Name..!';
-                            } else if (value
-                                .contains(RegExp(r'^[0-9_\-=@,\.;]+$'))) {
-                              return 'Product Name cannot contain special characters..!';
-                            }
-                            return null;
-                          },
-                          onFieldSubmitted: (value) {
-                            setState(() {
-                              productName = value.capitalize();
-                            });
-                          },
-                          onChanged: (value) {
-                            setState(() {
-                              productName = value.capitalize();
-                            });
-                          },
-                        ),
-                        const SizedBox(
-                          height: 20,
-                        ),
-//==================================== "Quantity" Text Field Code... ========================
-                        TextFormField(
-                          //keyboardType: TextInputType.phone,
-                          keyboardType: TextInputType.number,
-                          decoration: const InputDecoration(
-                              labelText: 'Quantity',
-                              enabledBorder: OutlineInputBorder(
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(7.0)),
-                                borderSide:
-                                    BorderSide(color: Colors.grey, width: 0.0),
-                              ),
-                              border: OutlineInputBorder()),
-                          validator: (value) {
-                            if (value == null ||
-                                value.isEmpty ||
-                                value.length > 1 ||
-                                value.length > 10000000 ||
-                                value.contains(RegExp(r'^[a-zA-Z\-]'))) {
-                              return 'Invalid Quantity..!';
-                            }
-                            return null;
-                          },
-                          onFieldSubmitted: (value) {
-                            setState(() {
-                              quantity = value;
-                            });
-                          },
-                          onChanged: (value) {
-                            setState(() {
-                              quantity = value;
-                            });
-                          },
-                        ),
-                        const SizedBox(
-                          height: 20,
-                        ),
-//==================================== "Price" Text Field Code... ========================
-                        TextFormField(
-                          keyboardType: TextInputType.number,
-                          decoration: const InputDecoration(
-                              labelText: 'Price',
-                              enabledBorder: OutlineInputBorder(
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(7.0)),
-                                borderSide:
-                                    BorderSide(color: Colors.grey, width: 0.0),
-                              ),
-                              border: OutlineInputBorder()),
-                          validator: (value) {
-                            if (value == null ||
-                                value.isEmpty ||
-                                //value.length > 999 ||
-                                //value.length > 10000000 ||
-                                value.contains(RegExp(r'^[a-zA-Z\-]'))) {
-                              return 'Invalid Price..!';
-                            } else if (value.length < 1000 &&
-                                value.length > 10000000) {
-                              return 'Enter the Price between 1000 to 10000000..!';
-                            }
-                            return null;
-                          },
-                          onFieldSubmitted: (value) {
-                            setState(() {
-                              price = value;
-                            });
-                          },
-                          onChanged: (value) {
-                            setState(() {
-                              price = value;
-                            });
-                          },
-                        ),
-                        const SizedBox(
-                          height: 20,
-                        ),
-//============================ 'Category' code here ===============================
-                        TextFormField(
-                          //controller: pass,
-                          decoration: const InputDecoration(
-                              labelText: 'Category',
-                              enabledBorder: OutlineInputBorder(
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(7.0)),
-                                borderSide:
-                                    BorderSide(color: Colors.grey, width: 0.0),
-                              ),
-                              border: OutlineInputBorder()),
-                          validator: (value) {
-                            if (value == null ||
-                                value.isEmpty ||
-                                value.length < 3) {
-                              return 'Invalid Category Name..!';
-                            } else if (value
-                                .contains(RegExp(r'^[0-9_\-=@,\.;]+$'))) {
-                              return 'Country cannot contain special characters..!';
-                            }
-                            return null;
-                          },
-                          onFieldSubmitted: (value) {
-                            setState(() {
-                              category = value.capitalize();
-                            });
-                          },
-                          onChanged: (value) {
-                            setState(() {
-                              category = value.capitalize();
-                            });
-                          },
-                        ),
-                        const SizedBox(
-                          height: 20,
-                        ),
-//============================= "Product Details" code here... =======================
-                        TextFormField(
-                          //minLines: 5,
-                          keyboardType: TextInputType.multiline,
-                          maxLines: null,
-                          decoration: const InputDecoration(
-                              labelText: 'Product Details',
-                              enabledBorder: OutlineInputBorder(
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(7.0)),
-                                borderSide:
-                                    BorderSide(color: Colors.grey, width: 0.0),
-                              ),
-                              border: OutlineInputBorder()),
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Please Enter Product Details..!';
-                            } else if (value.length < 3) {
-                              return 'Product Details must contain at least 3 characters..!';
-                            }
-                            return null;
-                          },
-                          onFieldSubmitted: (value) {
-                            setState(() {
-                              productDetails = value /*.capitalize()*/;
-                            });
-                          },
-                          onChanged: (value) {
-                            setState(() {
-                              productDetails = value /*.capitalize()*/;
-                            });
-                          },
-                        ),
-                        const SizedBox(
-                          height: 20,
-                        ),
-//============================= "Supplier" code here... =======================
-                        TextFormField(
-                          //minLines: 5,
-                          keyboardType: TextInputType.text,
-                          //maxLines: null,
-                          decoration: const InputDecoration(
-                              labelText: 'Supplier',
-                              enabledBorder: OutlineInputBorder(
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(7.0)),
-                                borderSide:
-                                    BorderSide(color: Colors.grey, width: 0.0),
-                              ),
-                              border: OutlineInputBorder()),
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Please Enter Supplier Name..!';
-                            } else if (value.length < 3) {
-                              return 'Supplier Name must contain at least 3 characters..!';
-                            }
-                            return null;
-                          },
-                          onFieldSubmitted: (value) {
-                            setState(() {
-                              supplier = value /*.capitalize()*/;
-                            });
-                          },
-                          onChanged: (value) {
-                            setState(() {
-                              supplier = value /*.capitalize()*/;
-                            });
-                          },
-                        ),
-                        const SizedBox(
-                          height: 20,
-                        ),
-//================================== "Emp ID" Text Field Code... ======================
-                        TextFormField(
-                          //keyboardType: TextInputType.phone,
-                          keyboardType: TextInputType.number,
-                          decoration: const InputDecoration(
-                              labelText: 'Employe ID',
-                              enabledBorder: OutlineInputBorder(
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(7.0)),
-                                borderSide:
-                                    BorderSide(color: Colors.grey, width: 0.0),
-                              ),
-                              border: OutlineInputBorder()),
-                          validator: (value) {
-                            if (value == null ||
-                                value.isEmpty ||
-                                value.length < 5 ||
-                                value.length > 5 ||
-                                value.contains(RegExp(r'^[a-zA-Z\-]'))) {
-                              return 'Invalid Employe ID..!';
-                            }
-                            return null;
-                          },
-                          onFieldSubmitted: (value) {
-                            setState(() {
-                              empId = value;
-                            });
-                          },
-                          onChanged: (value) {
-                            setState(() {
-                              empId = value;
-                            });
-                          },
-                        ),
-                        const SizedBox(
-                          height: 20,
-                        ),
-//============================ 'Assigned To' code here ===============================
-                        TextFormField(
-                          //controller: pass,
-                          decoration: const InputDecoration(
-                              labelText: 'Assigned to',
-                              enabledBorder: OutlineInputBorder(
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(7.0)),
-                                borderSide:
-                                    BorderSide(color: Colors.grey, width: 0.0),
-                              ),
-                              border: OutlineInputBorder()),
-                          validator: (value) {
-                            if (value == null ||
-                                value.isEmpty ||
-                                value.length < 3) {
-                              return 'Invalid Name..!';
-                            } else if (value
-                                .contains(RegExp(r'^[0-9_\-=@,\.;]+$'))) {
-                              return 'Name cannot contain any special characters..!';
-                            }
-                            return null;
-                          },
-                          onFieldSubmitted: (value) {
-                            setState(() {
-                              assignedTo = value.capitalize();
-                            });
-                          },
-                          onChanged: (value) {
-                            setState(() {
-                              assignedTo = value.capitalize();
-                            });
-                          },
-                        ),
-//========================================= Submit Button Code... ===========================
-                        const SizedBox(
-                          height: 30,
-                        ),
-                        ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                              minimumSize: const Size.fromHeight(60)),
-                          onPressed: () {
-                            // Validate returns true if the form is valid, or false otherwise.
-                            //_submit();
-                            if (_formKey.currentState!.validate()) {
-                              submit();
-                              //senddata();
-                            }
-                          },
-                          child: const Text("Submit",
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                              )),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ), */
-
         body: SingleChildScrollView(
           child: Padding(
             //padding: const EdgeInsets.all(16.0),
@@ -958,57 +313,293 @@ class ProductsPageState extends State<ProductsPage> {
                         fontSize: 24,
                       )),
                 ),
+                Padding(
+                  padding: const EdgeInsets.only(left: 400.0),
+                  child: Row(
+                    //mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      OutlinedButton(
+                        style: TextButton.styleFrom(
+                          foregroundColor: Colors.blueGrey,
+                          side: const BorderSide(
+                            color: Colors.black26,
+                            width: 0.5,
+                          ),
+                          padding: const EdgeInsets.symmetric(
+                              vertical: 16.0, horizontal: 20.0),
+                        ),
+                        onPressed: () {
+                          //_submit();
+                          Navigator.of(context).push(MaterialPageRoute(
+                              builder: (context) => const AddProductPage(
+                                    title: '',
+                                  )));
+                        },
+                        child: const Text("Add Product",
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            )),
+                      ),
+                      const SizedBox(
+                        width: 100.0,
+                      ),
+                      /* OutlinedButton(
+                          style: TextButton.styleFrom(
+                            foregroundColor: Colors.blueGrey,
+                            side: const BorderSide(
+                              color: Colors.black26,
+                              width: 0.5,
+                            ),
+                            padding: const EdgeInsets.symmetric(
+                                vertical: 16.0, horizontal: 20.0),
+                          ),
+                          onPressed: () {
+                            debugPrint('Edit Button Clicked');
+                          },
+                          child: const Text("Update Product",
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              )),
+                        ),
+                        const SizedBox(
+                          width: 100.0,
+                        ), */
+                      OutlinedButton(
+                        style: TextButton.styleFrom(
+                          foregroundColor: Colors.blueGrey,
+                          side: const BorderSide(
+                            color: Colors.black26,
+                            width: 0.5,
+                          ),
+                          padding: const EdgeInsets.symmetric(
+                              vertical: 16.0, horizontal: 20.0),
+                        ),
+                        onPressed: () {
+                          _getProducts();
+                          /* Navigator.of(context).push(MaterialPageRoute(
+                                builder: (context) => UsersPage(context))); */
+                        },
+                        child: const Text("Refresh",
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            )),
+                      ),
+                    ],
+                  ),
+                ),
                 const SizedBox(
                   height: 30,
                 ),
-                Container(
-                  padding: const EdgeInsets.only(left: 15.0),
-                  height: 450.0,
-                  /* constraints: const BoxConstraints(
-                      maxHeight: double.infinity,
-                    ), */
-                  child: FutureBuilder /* <Object> */ (
-                      future: generateUserList(),
-                      builder: (context, data) {
-                        return data.hasData
-                            ? SfDataGrid(
-                                allowPullToRefresh: true,
-                                source: _productDataSource!,
-                                columns: _columns!,
-                                columnWidthMode: ColumnWidthMode.auto,
-                              )
-                            : const Center(
-                                child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                value: 0.7,
-                              ));
-                      }),
+                Scrollbar(
+                  thickness: 5,
+                  controller: horizontal,
+                  trackVisibility: true,
+                  child: SingleChildScrollView(
+                    controller: horizontal,
+                    scrollDirection: Axis.horizontal,
+                    child: DataTable(
+                      sortColumnIndex: _currentSortColumn,
+                      sortAscending: _isAscending,
+                      showCheckboxColumn: true,
+                      border: TableBorder.all(
+                        width: 1.0,
+                        color: Colors.black45,
+                      ),
+                      headingRowColor: MaterialStateProperty.resolveWith(
+                          (states) => Colors.blueGrey),
+                      headingTextStyle: const TextStyle(
+                          fontWeight: FontWeight.bold, color: Colors.white),
+                      columns: const [
+                        /* DataColumn(
+                              label: Text(
+                                "LINE NO. #",
+                              ),
+                              numeric: false,
+                              tooltip: "This is the Line No."), */
+                        DataColumn(
+                          label: Text("PRODUCT ID"),
+                          numeric: false,
+                          /* onSort: (int columnIndex, bool ascending) {
+                              setState(() {
+                                _currentSortColumn = columnIndex;
+                                if (_isAscending == true) {
+                                  _isAscending = false;
+                                  // sort the products list in Ascending, order by ID
+                                  _products.sort((productA, productB) =>
+                                      productB.productId
+                                          .compareTo(productA.productId));
+                                } else {
+                                  _isAscending = true;
+                                  // sort the products list in Descending, order by ID
+                                  _products.sort((productA, productB) =>
+                                      productA.productId
+                                          .compareTo(productB.productId));
+                                }
+                              });
+                            } */
+                        ),
+                        DataColumn(
+                          label: Text(
+                            "PRODUCT CODE",
+                          ),
+                          numeric: false,
+                        ),
+                        DataColumn(
+                          label: Text("PRODUCT NAME"),
+                          numeric: false,
+                        ),
+                        DataColumn(label: Text("QUANTITY"), numeric: false),
+                        DataColumn(label: Text("PRICE"), numeric: false),
+                        DataColumn(label: Text("CATEGORY"), numeric: false),
+                        DataColumn(
+                            label: Text("PRODUCT DETAILS"), numeric: false),
+                        DataColumn(label: Text("SUPPLIER"), numeric: false),
+                        DataColumn(label: Text("EMPLOYEE ID"), numeric: false),
+                        DataColumn(label: Text("ASSIGNED TO"), numeric: false),
+                        DataColumn(
+                            label: Text("ACTIONS"),
+                            numeric: false,
+                            tooltip: "Related Actions"),
+                      ],
+                      rows: _products
+                          .map(
+                            (product) => DataRow(
+                              cells: [
+                                DataCell(
+                                  Text(product.productId),
+                                  /* onTap: () {
+                                    debugPrint("Tapped ${product.productId}");
+                                    Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) =>
+                                                const AddUpdateProductPage()));
+                                    _setValues(product);
+                                    _selectedProduct = product;
+                                  }, */
+                                ),
+                                DataCell(
+                                  Text(
+                                    product.productCode,
+                                  ),
+                                  onTap: () {
+                                    _setValues(product);
+                                    _selectedProduct = product;
+                                  },
+                                ),
+                                DataCell(
+                                  Text(
+                                    product.productName /* .toUpperCase() */,
+                                  ),
+                                  onTap: () {
+                                    _setValues(product);
+                                    _selectedProduct = product;
+                                  },
+                                ),
+                                DataCell(
+                                  Text(
+                                    product.quantity,
+                                  ),
+                                  onTap: () {
+                                    _setValues(product);
+                                    _selectedProduct = product;
+                                  },
+                                ),
+                                DataCell(
+                                  Text(
+                                    product.price,
+                                  ),
+                                  onTap: () {
+                                    _setValues(product);
+                                    _selectedProduct = product;
+                                  },
+                                ),
+                                DataCell(
+                                  Text(
+                                    product.category,
+                                  ),
+                                  onTap: () {
+                                    _setValues(product);
+                                    _selectedProduct = product;
+                                  },
+                                ),
+                                DataCell(
+                                  Text(
+                                    product.productDetails,
+                                  ),
+                                  onTap: () {
+                                    _setValues(product);
+                                    _selectedProduct = product;
+                                  },
+                                ),
+                                DataCell(
+                                  Text(
+                                    product.supplier,
+                                  ),
+                                  onTap: () {
+                                    _setValues(product);
+                                    _selectedProduct = product;
+                                  },
+                                ),
+                                DataCell(
+                                  Text(
+                                    product.empId,
+                                  ),
+                                  onTap: () {
+                                    _setValues(product);
+                                    _selectedProduct = product;
+                                  },
+                                ),
+                                DataCell(
+                                  Text(
+                                    product.assignedTo,
+                                  ),
+                                  onTap: () {
+                                    _setValues(product);
+                                    _selectedProduct = product;
+                                  },
+                                ),
+                                DataCell(
+                                  Row(
+                                    children: [
+                                      IconButton(
+                                        icon: const Icon(Icons.edit),
+                                        onPressed: () {
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                                builder: (context) =>
+                                                    const AddUpdateProductPage()),
+                                          );
+                                          debugPrint("Edit Mode Enabled...");
+                                        },
+                                      ),
+                                      IconButton(
+                                        icon: const Icon(Icons.delete),
+                                        onPressed: () {
+                                          _deleteProduct(product);
+                                          debugPrint("Data Row Deleted...");
+                                        },
+                                      ),
+                                    ],
+                                  ),
+                                  /* onTap: () {
+                                      // print("Tapped 'Delete' Action");
+                                      debugPrint("Data Row Deleted...");
+                                    }, */
+                                ),
+                              ],
+                            ),
+                          )
+                          .toList(),
+                    ),
+                  ),
                 ),
                 const SizedBox(
                   height: 35,
-                ),
-                SizedBox(
-                  width: 150,
-                  height: 50,
-                  child: ElevatedButton(
-                    /* style: ElevatedButton.styleFrom(
-                        //minimumSize: const Size.fromHeight(60),
-                        maximumSize: const Size.fromWidth(35),
-                      ), */
-                    onPressed: () {
-                      // Validate returns true if the form is valid, or false otherwise.
-                      //_submit();
-                      Navigator.of(context).push(MaterialPageRoute(
-                          builder: (context) => const AddProductPage(
-                                title: '',
-                              )));
-                    },
-                    child: const Text("Add Product",
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        )),
-                  ),
                 ),
               ],
             ),
@@ -1033,6 +624,52 @@ class ProductsPageState extends State<ProductsPage> {
   }
 }
 
+class Products {
+  /* int */ String productId;
+  /* int */ String productCode;
+  String productName;
+  /* int */ String quantity;
+  /* int */ String price;
+  String category;
+  String productDetails;
+  String supplier;
+  /* int */ String empId;
+  String assignedTo;
+
+  Products({
+    required this.productId,
+    required this.productCode,
+    required this.productName,
+    required this.quantity,
+    required this.price,
+    required this.category,
+    required this.productDetails,
+    required this.supplier,
+    required this.empId,
+    required this.assignedTo,
+  });
+
+  factory Products.fromJson(Map<String, dynamic> json) {
+    return Products(
+      // productId: int.parse(json['product_id']),
+      productId: json['product_id'],
+      // productCode: int.parse(json['procuct_code']),
+      productCode: json['product_code'],
+      productName: json['product_name'] as String,
+      // quantiry: int.parse(json['quantity']),
+      quantity: json['quantity'],
+      // price: int.parse(json['price']),
+      price: json['price'],
+      category: json['category'] as String,
+      productDetails: json['product_details'] as String,
+      supplier: json['supplier'] as String,
+      // empId: int.parse(json['emp_id']),
+      empId: json['emp_id'],
+      assignedTo: json['assigned_to'] as String,
+    );
+  }
+}
+
 /*extension StringExtension on String {
   // Method used for capitalizing the input from the form
   String capitalize() {
@@ -1050,96 +687,84 @@ class ProductsPageState extends State<ProductsPage> {
     return result;
   }
 } */
+//
+//============================= Services Class Code =================================
+class Services {
+  static const ROOT = 'http://localhost/crm/product_actions.php';
+  static const String _GET_ACTION = 'GET_ALL';
+  static const String _ADD_PRODUCT_ACTION = 'ADD_PRODUCT';
+  static const String _UPDATE_PRODUCT_ACTION = 'UPDATE_PRODUCT';
+  static const String _DELETE_PRODUCT_ACTION = 'DELETE_PRODUCT';
 
-class ProductDataSource extends DataGridSource {
-  /// Creates the employee data source class with required details.
-  ProductDataSource(this.products) {
-    buildDataGridRow();
+  static Future<List<Products>> getProducts() async {
+    try {
+      // var map = new Map<String, dynamic>();
+      var map = <String, dynamic>{};
+      map["action"] = _GET_ACTION;
+      final response = await http.post(Uri.parse(ROOT), body: map);
+      debugPrint("getProducts >> Response:: ${response.body}");
+      if (response.statusCode == 200) {
+        List<Products> list = parsePhotos(response.body);
+        return list;
+      } else {
+        // throw List<Employee>();
+        throw <Products>[];
+      }
+    } catch (e) {
+      // return List<Employee>();
+      return <Products>[];
+    }
   }
 
-  void buildDataGridRow() {
-    _productDataGridRows = products
-        .map<DataGridRow>((p) => DataGridRow(cells: [
-              DataGridCell<int>(columnName: 'product_id', value: p.productId),
-              DataGridCell<int>(
-                  columnName: 'procuct_code', value: p.productCode),
-              DataGridCell<String>(
-                  columnName: 'product_name', value: p.productName),
-              DataGridCell<int>(columnName: 'quantity', value: p.quantiry),
-              DataGridCell<int>(columnName: 'price', value: p.price),
-              DataGridCell<String>(columnName: 'category', value: p.category),
-              DataGridCell<String>(
-                  columnName: 'product_details', value: p.productDetails),
-              DataGridCell<String>(columnName: 'supplier', value: p.supplier),
-              DataGridCell<int>(columnName: 'emp_id', value: p.empId),
-              DataGridCell<String>(
-                  columnName: 'assigned_to', value: p.assignedTo),
-            ]))
-        .toList();
+  static List<Products> parsePhotos(String responseBody) {
+    final parsed = json.decode(responseBody).cast<Map<String, dynamic>>();
+    return parsed.map<Products>((json) => Products.fromJson(json)).toList();
   }
 
-  List<Product> products = [];
-
-  List<DataGridRow> _productDataGridRows = [];
-
-  @override
-  List<DataGridRow> get rows => _productDataGridRows;
-
-  @override
-  DataGridRowAdapter buildRow(DataGridRow row) {
-    return DataGridRowAdapter(
-        cells: row.getCells().map<Widget>((p) {
-      return Container(
-        alignment: Alignment.center,
-        padding: const EdgeInsets.all(8.0),
-        child: Text(p.value.toString()),
-      );
-    }).toList());
+  static Future<String> addProduct(String firstName, String lastName) async {
+    try {
+      // var map = new Map<String, dynamic>();
+      var map = <String, dynamic>{};
+      map["action"] = _ADD_PRODUCT_ACTION;
+      map["firstname"] = firstName;
+      map["lastname"] = lastName;
+      final response = await http.post(Uri.parse(ROOT), body: map);
+      debugPrint("addProduct >> Response:: ${response.body}");
+      return response.body;
+    } catch (e) {
+      return 'error';
+    }
   }
 
-  void updateDataGrid() {
-    notifyListeners();
+  static Future<String> updateProduct(
+      String productId, String firstName, String lastName) async {
+    try {
+      // var map = new Map<String, dynamic>();
+      var map = <String, dynamic>{};
+      map["action"] = _UPDATE_PRODUCT_ACTION;
+      map["product_id"] = productId;
+      map["firstname"] = firstName;
+      map["lastname"] = lastName;
+      final response = await http.post(Uri.parse(ROOT), body: map);
+      debugPrint("updateProduct >> Response:: ${response.body}");
+      return response.body;
+    } catch (e) {
+      return 'error';
+    }
   }
-}
 
-class Product {
-  int productId;
-  int productCode;
-  String productName;
-  int quantiry;
-  int price;
-  String category;
-  String productDetails;
-  String supplier;
-  int empId;
-  String assignedTo;
-
-  Product({
-    required this.productId,
-    required this.productCode,
-    required this.productName,
-    required this.quantiry,
-    required this.price,
-    required this.category,
-    required this.productDetails,
-    required this.supplier,
-    required this.empId,
-    required this.assignedTo,
-  });
-
-  factory Product.fromJson(Map<String, dynamic> json) {
-    return Product(
-      productId: int.parse(json['product_id']),
-      productCode: int.parse(json['procuct_code']),
-      productName: json['product_name'] as String,
-      quantiry: int.parse(json['quantity']),
-      price: int.parse(json['price']),
-      category: json['category'] as String,
-      productDetails: json['product_details'] as String,
-      supplier: json['supplier'] as String,
-      empId: int.parse(json['emp_id']),
-      assignedTo: json['assigned_to'] as String,
-    );
+  static Future<String> deleteProduct(String productId) async {
+    try {
+      // var map = new Map<String, dynamic>();
+      var map = <String, dynamic>{};
+      map["action"] = _DELETE_PRODUCT_ACTION;
+      map["product_id"] = productId;
+      final response = await http.post(Uri.parse(ROOT), body: map);
+      debugPrint("deleteProduct >> Response:: ${response.body}");
+      return response.body;
+    } catch (e) {
+      return 'error';
+    }
   }
 }
 

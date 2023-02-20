@@ -1,4 +1,4 @@
-// ignore_for_file: constant_identifier_names, avoid_unnecessary_containers, prefer_typing_uninitialized_variables
+/* // ignore_for_file: constant_identifier_names, avoid_unnecessary_containers, prefer_typing_uninitialized_variables
 // import 'dart:convert';
 // import 'dart:html';
 import 'package:flutter/material.dart';
@@ -102,7 +102,7 @@ class UpdateUserPageState extends State<UpdateUserPage> {
 
 class UpdateUserPage extends StatefulWidget {
   // UpdateUserPage() : super();
-  const UpdateUserPage({Key? key}) : super(key: key);
+  const UpdateUserPage(userdata, {Key? key, required index, required list}) : super(key: key);
 
   final String title = "Flutter User Table";
 
@@ -111,13 +111,21 @@ class UpdateUserPage extends StatefulWidget {
 }
 
 class UpdateUserPageState extends State<UpdateUserPage> {
-  late List<User> users;
-  late GlobalKey<ScaffoldState> _scaffoldKey;
-  late TextEditingController _firstNameController;
-  late TextEditingController _lastNameController;
+  TextEditingController _firstNameController = TextEditingController();
+  TextEditingController _lastNameController = TextEditingController();
 
+  Future<void> update_data() async{
+
+  }
+
+////////////////////////////////////////////////////////////////////////////////
   late User selectedUser;
+  late List<User> users;
+
+  //late TextEditingController _firstNameController;
   late bool _isUpdating;
+  //late TextEditingController _lastNameController;
+  late GlobalKey<ScaffoldState> _scaffoldKey;
   late String _titleProgress;
 
   @override
@@ -129,13 +137,6 @@ class UpdateUserPageState extends State<UpdateUserPage> {
     _scaffoldKey = GlobalKey();
     _firstNameController = TextEditingController();
     _lastNameController = TextEditingController();
-  }
-
-//Method to Update title in the AppBar Title
-  _showProgress(String message) {
-    setState(() {
-      _titleProgress = message;
-    });
   }
 
   showSnackBar(context, message) {
@@ -150,6 +151,13 @@ class UpdateUserPageState extends State<UpdateUserPage> {
         duration: const Duration(milliseconds: 300),
       ),
     );
+  }
+
+//Method to Update title in the AppBar Title
+  _showProgress(String message) {
+    setState(() {
+      _titleProgress = message;
+    });
   }
 
   _updateUser(User user) {
@@ -254,9 +262,10 @@ class UpdateUserPageState extends State<UpdateUserPage> {
 }
 
 class Services {
-  static const ROOT = 'http://localhost/crm/update.php';
-  static const _UPDATE_EMP_ACTION = 'UPDATE_USER';
+  static const ROOT = 'http://localhost/crm/_update.php';
+
   static const _DELETE_EMP_ACTION = 'DELETE_USER';
+  static const _UPDATE_EMP_ACTION = 'UPDATE_USER';
 
 //Method to UPDATE an USER//
   static Future<String> updateUser(
@@ -301,3 +310,4 @@ class Services {
     }
   }
 }
+ */

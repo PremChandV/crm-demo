@@ -1,0 +1,12 @@
+C:/Users/Account/Documents/prj/crm/build/windows/runner/Debug/data/icudtl.dat
+C:/Users/Account/Documents/prj/crm/build/windows/runner/Debug/flutter_windows.dll
+C:/Users/Account/Documents/prj/crm/build/windows/runner/Debug/data/flutter_assets/AssetManifest.json
+C:/Users/Account/Documents/prj/crm/build/windows/runner/Debug/data/flutter_assets/assets/images/crm_logo.png
+C:/Users/Account/Documents/prj/crm/build/windows/runner/Debug/data/flutter_assets/assets/images/logo.svg
+C:/Users/Account/Documents/prj/crm/build/windows/runner/Debug/data/flutter_assets/FontManifest.json
+C:/Users/Account/Documents/prj/crm/build/windows/runner/Debug/data/flutter_assets/fonts/MaterialIcons-Regular.otf
+C:/Users/Account/Documents/prj/crm/build/windows/runner/Debug/data/flutter_assets/kernel_blob.bin
+C:/Users/Account/Documents/prj/crm/build/windows/runner/Debug/data/flutter_assets/NOTICES
+C:/Users/Account/Documents/prj/crm/build/windows/runner/Debug/data/flutter_assets/NOTICES.Z
+C:/Users/Account/Documents/prj/crm/build/windows/runner/Debug/data/flutter_assets/packages/cupertino_icons/assets/CupertinoIcons.ttf
+C:/Users/Account/Documents/prj/crm/build/windows/runner/Debug/data/flutter_assets/shaders/ink_sparkle.frag

@@ -3,7 +3,6 @@ import 'dart:convert';
 import '../admin_page.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:easy_sidemenu/easy_sidemenu.dart';
 import 'package:email_validator/email_validator.dart';
 
 class AddClientPage extends StatefulWidget {
@@ -22,8 +21,6 @@ class AddClientPageState extends State<AddClientPage> {
 
   //Create the (Global) Keys
   final GlobalKey<FormState> _formKey = GlobalKey();
-  final GlobalKey<ScaffoldState> _drawerscaffoldkey =
-      GlobalKey<ScaffoldState>();
 
   var appBarHeight = AppBar().preferredSize.height;
 
@@ -39,18 +36,6 @@ class AddClientPageState extends State<AddClientPage> {
   String regDate = "";
   String sector = "";
   String socialLinks = "";
-
-  String msg = "New User added Successfully..!";
-  String msgErr = "The User is already Exist..!";
-
-  TextEditingController psw = TextEditingController();
-  TextEditingController dateinput = TextEditingController();
-
-  /* @override
-  void initState() {
-    dateinput.text = ''; //set the initial value of text field
-    super.initState();
-  } */
 
 //================================= 'Send Data' API ===============================
   Future senddata() async {
@@ -193,459 +178,57 @@ class AddClientPageState extends State<AddClientPage> {
     );
   }
 
-//
-  @override
-  void initState() {
-    sideMenu.addListener((p0) {
-      page.jumpToPage(p0);
-    });
-    super.initState();
-  }
-
-//
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-//
-/*//============================== Appbar code here... ==============================
-      appBar: AppBar(title: const Text("Clients"), actions: <Widget>[
-        DropdownButtonHideUnderline(
-          child: DropdownButton2(
-            isExpanded: true,
-            hint: Row(
-              children: const [
-                Icon(Icons.account_circle_rounded,
-                    size: 20, color: Colors.white),
-                SizedBox(
-                  width: 6,
-                ),
-                Expanded(
-                  child: Text(
-                    'Admin',
-                    style: TextStyle(
-                      fontSize: 14,
-                      //fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-              ],
-            ),
-            items: items
-                .map((item) => DropdownMenuItem<String>(
-                      value: item,
-                      child: Text(
-                        item,
-                        style: const TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black54,
-                        ),
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ))
-                .toList(),
-            //value: selectedValue,
-            onChanged: (value) {
-              setState(() {
-                //selectedValue = value as String;
-                /*if (value == 0) {
-                      setState(() {
-                      });
-                    } */
-              });
-            },
-            icon: const Icon(
-              Icons.more_vert,
-            ),
-            iconSize: 20,
-            iconEnabledColor: Colors.white,
-            iconDisabledColor: Colors.grey,
-            buttonHeight: 50,
-            buttonWidth: 160,
-            buttonPadding: const EdgeInsets.only(left: 14, right: 14),
-            buttonElevation: 2,
-            itemHeight: 40,
-            itemPadding: const EdgeInsets.only(left: 14, right: 14),
-            dropdownMaxHeight: 200,
-            dropdownWidth: 200,
-            dropdownPadding: null,
-            dropdownDecoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(14),
-              color: Colors.white,
-            ),
-            dropdownElevation: 8,
-            scrollbarRadius: const Radius.circular(40),
-            scrollbarThickness: 6,
-            scrollbarAlwaysShow: true,
-            offset: const Offset(-20, 0),
-          ),
-        ),
-      ]),
-//======================================== Drawer code here... ==========================
-      drawer: Drawer(
-        child: ListView(
-          padding: EdgeInsets.zero,
-          children: [
-            const DrawerHeader(
-              decoration: BoxDecoration(
-                color: Colors.blue,
-              ),
-              child: Text('Drawer Header'),
-            ),
-            ListTile(
-              leading: const Icon(
-                Icons.home,
-              ),
-              title: const Text('Dashboard'),
-              onTap: () {
-                Navigator.pushReplacementNamed(context, '/AdminPage');
-              },
-            ),
-            ListTile(
-              leading: const Icon(
-                Icons.assignment_ind,
-              ),
-              title: const Text('Users'),
-              onTap: () {
-                Navigator.pushReplacementNamed(context, '/UsersPage');
-              },
-            ),
-            ListTile(
-              leading: const Icon(
-                Icons.ballot,
-              ),
-              title: const Text('Products'),
-              onTap: () {
-                Navigator.pushReplacementNamed(context, '/ProductsPage');
-              },
-            ),
-            ListTile(
-              leading: const Icon(
-                Icons.supervisor_account,
-              ),
-              title: const Text('Clients'),
-              onTap: () {
-                Navigator.pop(context);
-              },
-            ),
-            ListTile(
-              leading: const Icon(
-                Icons.analytics,
-              ),
-              title: const Text('Reports'),
-              onTap: () {
-                Navigator.pushReplacementNamed(context, '/ReportsPage');
-              },
-            ),
-            ListTile(
-              leading: const Icon(
-                Icons.credit_card,
-              ),
-              title: const Text('Payments'),
-              onTap: () {
-                Navigator.pushReplacementNamed(context, '/PaymentsPage');
-              },
-            ),
-          ],
-        ),
-      ), */
 //============================== Appbar code here... ==============================
-        appBar: AppBar(
-            title: const Text("Clients Page"),
-            leading: IconButton(
-              onPressed: () {
-                //on drawer menu pressed
-                if (_drawerscaffoldkey.currentState!.isDrawerOpen) {
-                  //if drawer is open, then close the drawer
-                  Navigator.pop(context);
-                } else {
-                  _drawerscaffoldkey.currentState?.openDrawer();
-                  //if drawer is closed then open the drawer.
-                }
-              },
-              icon: const Icon(Icons.menu),
-            ),
-            actions: <Widget>[
-              DropdownButtonHideUnderline(
-                child: PopupMenuButton<int>(
-                  //padding: const EdgeInsets.only(right: 50.0),
-                  color: Colors.white,
-                  onSelected: (item) => onSelected(context, item),
-                  offset: Offset(-20.0, appBarHeight),
-                  shape: const RoundedRectangleBorder(
-                    borderRadius: BorderRadius.all(
-                      Radius.circular(5),
-                    ),
-                  ),
-                  itemBuilder: (context) => [
-                    PopupMenuItem<int>(
-                      value: 0,
-                      child: Row(
-                        children: const [
-                          Icon(
-                            Icons.account_circle_outlined /* person */,
-                            color: Colors.black54,
-                          ),
-                          SizedBox(width: 8),
-                          Text('Account'),
-                        ],
+        appBar: AppBar(title: const Text("Clients Page"), actions: <Widget>[
+          DropdownButtonHideUnderline(
+            child: PopupMenuButton<int>(
+              //padding: const EdgeInsets.only(right: 50.0),
+              color: Colors.white,
+              onSelected: (item) => onSelected(context, item),
+              offset: Offset(-20.0, appBarHeight),
+              shape: const RoundedRectangleBorder(
+                borderRadius: BorderRadius.all(
+                  Radius.circular(5),
+                ),
+              ),
+              itemBuilder: (context) => [
+                PopupMenuItem<int>(
+                  value: 0,
+                  child: Row(
+                    children: const [
+                      Icon(
+                        Icons.account_circle_outlined /* person */,
+                        color: Colors.black54,
                       ),
-                    ),
-                    const PopupMenuDivider(),
-                    PopupMenuItem<int>(
-                      value: 1,
-                      child: Row(
-                        children: const [
-                          Icon(
-                            Icons.logout,
-                            color: Colors.black54,
-                          ),
-                          SizedBox(width: 8),
-                          Text('Log Out'),
-                        ],
+                      SizedBox(width: 8),
+                      Text('Account'),
+                    ],
+                  ),
+                ),
+                const PopupMenuDivider(),
+                PopupMenuItem<int>(
+                  value: 1,
+                  child: Row(
+                    children: const [
+                      Icon(
+                        Icons.logout,
+                        color: Colors.black54,
                       ),
-                    ),
-                  ],
-                ),
-              ),
-            ]),
-//
-        body: Scaffold(
-          //second scaffold
-          key: _drawerscaffoldkey, //set gobal key defined above
-//======================================== Drawer code here... ==========================
-          /* drawer: Drawer(
-          child: ListView(
-            padding: EdgeInsets.zero,
-            children: [
-              const DrawerHeader(
-                decoration: BoxDecoration(
-                  color: Colors.blue,
-                ),
-                child: Text('Drawer Header'),
-              ),
-              ListTile(
-                leading: const Icon(
-                  Icons.home,
-                ),
-                title: const Text('Dashboard'),
-                onTap: () {
-                  //Navigator.pop(context, const AdminPage(title: 'Admin Page'));
-                  Navigator.pushReplacementNamed(context, '/AdminPage');
-                },
-              ),
-              ListTile(
-                leading: const Icon(
-                  Icons.assignment_ind,
-                ),
-                title: const Text('Users'),
-                onTap: () {
-                  Navigator.pop(context);
-                },
-              ),
-              ListTile(
-                leading: const Icon(
-                  Icons.ballot,
-                ),
-                title: const Text('Products'),
-                onTap: () {
-                  //Navigator.pop(context);
-                  Navigator.pushReplacementNamed(context, '/ProductsPage');
-                },
-              ),
-              ListTile(
-                leading: const Icon(
-                  Icons.supervisor_account,
-                ),
-                title: const Text('Clients'),
-                onTap: () {
-                  //Navigator.pop(context);
-                  Navigator.pushReplacementNamed(context, '/ClientsPage');
-                },
-              ),
-              ListTile(
-                leading: const Icon(
-                  Icons.analytics,
-                ),
-                title: const Text('Reports'),
-                onTap: () {
-                  Navigator.pushReplacementNamed(context, '/ReportsPage');
-                },
-              ),
-              ListTile(
-                leading: const Icon(
-                  Icons.credit_card,
-                ),
-                title: const Text('Payments'),
-                onTap: () {
-                  Navigator.pushReplacementNamed(context, '/PaymentsPage');
-                },
-              ),
-            ],
-          ),
-        ), */
-          drawer: Row(children: [
-            SideMenu(
-              //controller: sideMenu,
-              controller: page,
-              style: SideMenuStyle(
-                //showTooltip: false,
-                displayMode: SideMenuDisplayMode.auto,
-                hoverColor: Colors.blue[100],
-                selectedColor: Colors.blue,
-                selectedTitleTextStyle: const TextStyle(color: Colors.white),
-                selectedIconColor: Colors.white,
-                decoration: const BoxDecoration(
-                  //borderRadius: BorderRadius.all(Radius.circular(10)),
-                  color: Colors.black12,
-                  border: Border(
-                    right: BorderSide(
-                      color: Colors.black,
-                      width: 1.0,
-                    ),
+                      SizedBox(width: 8),
+                      Text('Log Out'),
+                    ],
                   ),
-                  /*boxShadow: [
-                  BoxShadow(
-                    color: Colors.grey,
-                    offset: Offset(5.0, 0.0),
-                    blurRadius: 10.0,
-                    spreadRadius: 0.0,
-                  ),
-                ], */
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.white,
-                      offset: Offset(0.0, 0.0),
-                      blurRadius: 0.0,
-                      spreadRadius: 0.0,
-                    ),
-                  ],
-                  //backgroundBlendMode: BlendMode.color
-                ), /*backgroundColor: Colors.black12*/
-              ),
-              title: Column(
-                children: [
-                  const SizedBox(
-                    height: 10,
-                  ),
-                  ConstrainedBox(
-                    constraints: const BoxConstraints(
-                      maxHeight: 150,
-                      maxWidth: 150,
-                    ),
-                    child: Image.asset(
-                      'lib/assets/images/crm_logo.png',
-                    ),
-                  ),
-                  const Divider(
-                    indent: 8.0,
-                    endIndent: 8.0,
-                  ),
-                ],
-              ),
-
-              items: [
-                SideMenuItem(
-                  priority: 0,
-                  title: 'Dashboard',
-                  icon: const Icon(Icons.home),
-                  onTap: () {
-                    Navigator.pushReplacementNamed(context, '/AdminPage');
-                    //sideMenu.changePage(const AdminPage(title: 'Dashboard'));
-                    /*Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) =>
-                                const AdminPage(title: 'Admin Page')),
-                      ); */
-                  },
-                  tooltipContent: "Dashboard",
-                ),
-                SideMenuItem(
-                  priority: 1,
-                  title: 'Sales Team',
-                  icon: const Icon(Icons.assignment_ind),
-                  //GestureDetector(
-                  onTap: () {
-                    //const UsersPage(title: 'title');
-                    Navigator.pushReplacementNamed(context, '/UsersPage');
-                    //sideMenu.changePage('/UsersPage');
-                    //setState(() => const AdminUsersPage());
-                    /*Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => const UsersPage(title: 'Users'))); */
-                    /*Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => const UsersPage(
-                                  title: 'Users',
-                                )),
-                      ); */
-                  },
-                  //),
-                ),
-                SideMenuItem(
-                  priority: 2,
-                  title: 'Product Management',
-                  icon: const Icon(Icons.ballot),
-                  onTap: () {
-                    //sideMenu.changePage(const UsersPage(title: '',));
-                    Navigator.pushReplacementNamed(context, '/ProductsPage');
-                  },
-                  /*trailing: Container(
-                        decoration: const BoxDecoration(
-                            color: Colors.amber,
-                            borderRadius: BorderRadius.all(Radius.circular(6))),
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 6.0, vertical: 3),
-                          child: Text(
-                            'New',
-                            style: TextStyle(fontSize: 11, color: Colors.grey[800]),
-                          ),
-                        )), */
-                ),
-                SideMenuItem(
-                  priority: 3,
-                  title: 'Client Management',
-                  icon: const Icon(Icons.supervisor_account),
-                  onTap: () {
-                    //sideMenu.changePage(page);
-                    //Navigator.pushReplacementNamed(context, '/ClientsPage');
-                  },
-                ),
-                SideMenuItem(
-                  priority: 4,
-                  title: 'Report Generation',
-                  icon: const Icon(Icons.analytics),
-                  onTap: () {
-                    //sideMenu.changePage(page);
-                    Navigator.pushReplacementNamed(context, '/ReportsPage');
-                  },
-                ),
-                SideMenuItem(
-                  priority: 7,
-                  title: 'Payments',
-                  icon: const Icon(Icons.credit_card),
-                  onTap: () {
-                    //sideMenu.changePage(page);
-                    Navigator.pushReplacementNamed(context, '/PaymentsPage');
-                  },
                 ),
               ],
-              footer: const Padding(
-                padding: EdgeInsets.all(8.0),
-                child: Text(
-                  '_____',
-                  style: TextStyle(fontSize: 15),
-                ),
-              ),
             ),
-          ]),
+          ),
+        ]),
 //====================================== Body Code Here... =============================
+//Second Scaffold
+        body: Scaffold(
           body: Center(
             child: SingleChildScrollView(
               child: Padding(
@@ -654,7 +237,7 @@ class AddClientPageState extends State<AddClientPage> {
                   children: <Widget>[
                     const Align(
                       alignment: Alignment.topLeft,
-                      child: Text("Add Clients Page",
+                      child: Text("Add Client",
                           style: TextStyle(
                             fontSize: 24,
                           )),
@@ -667,7 +250,7 @@ class AddClientPageState extends State<AddClientPage> {
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: <Widget>[
-//============================ 'Product Code' code here ===============================
+//============================ 'Company Code' code here ===============================
                           TextFormField(
                             keyboardType: TextInputType.number,
                             decoration: const InputDecoration(
@@ -703,7 +286,7 @@ class AddClientPageState extends State<AddClientPage> {
                           const SizedBox(
                             height: 20,
                           ),
-//================================= 'Product Name' code here ===========================
+//================================= 'Company Name' code here ===========================
                           TextFormField(
                             decoration: const InputDecoration(
                                 labelText: 'Organization/Company Name',
@@ -727,12 +310,12 @@ class AddClientPageState extends State<AddClientPage> {
                             },
                             onFieldSubmitted: (value) {
                               setState(() {
-                                orgName = value.capitalize();
+                                orgName = value.capitalizeAllWord();
                               });
                             },
                             onChanged: (value) {
                               setState(() {
-                                orgName = value.capitalize();
+                                orgName = value.capitalizeAllWord();
                               });
                             },
                           ),
@@ -914,12 +497,12 @@ class AddClientPageState extends State<AddClientPage> {
                             },
                             onFieldSubmitted: (value) {
                               setState(() {
-                                address = value;
+                                address = value.capitalizeAllWord();
                               });
                             },
                             onChanged: (value) {
                               setState(() {
-                                address = value;
+                                address = value.capitalizeAllWord();
                               });
                             },
                           ),
@@ -986,12 +569,12 @@ class AddClientPageState extends State<AddClientPage> {
                             },
                             onFieldSubmitted: (value) {
                               setState(() {
-                                regTo = value.capitalize();
+                                regTo = value.capitalizeAllWord();
                               });
                             },
                             onChanged: (value) {
                               setState(() {
-                                regTo = value.capitalize();
+                                regTo = value.capitalizeAllWord();
                               });
                             },
                           ),
@@ -1061,12 +644,12 @@ class AddClientPageState extends State<AddClientPage> {
                             },
                             onFieldSubmitted: (value) {
                               setState(() {
-                                sector = value.capitalize();
+                                sector = value.capitalizeAllWord();
                               });
                             },
                             onChanged: (value) {
                               setState(() {
-                                sector = value.capitalize();
+                                sector = value.capitalizeAllWord();
                               });
                             },
                           ),
@@ -1105,12 +688,9 @@ class AddClientPageState extends State<AddClientPage> {
                               });
                             },
                           ),
-                          const SizedBox(
-                            height: 20,
-                          ),
 //========================================= Submit Button Code... ===========================
                           const SizedBox(
-                            height: 30,
+                            height: 45.0,
                           ),
                           ElevatedButton(
                             style: ElevatedButton.styleFrom(
@@ -1156,11 +736,26 @@ class AddClientPageState extends State<AddClientPage> {
 }
 
 extension StringExtension on String {
-  // Method used for capitalizing the input from the form
+  // Method used for Capitalize the First letter of first word from the form input values.
   String capitalize() {
     //String str = value;
     var result = this[0].toUpperCase();
+    bool cap = true;
+    // ignore: unnecessary_this
+    for (int i = 1; i < this.length; i++) {
+      if (this[i - 1] == " " && cap == true) {
+        result = result + this[i].toUpperCase();
+      } else {
+        result = result + this[i];
+        cap = false;
+      }
+    }
+    return result;
+  }
 
+  // Method used for Capitalize the First letter of each word from the form input values.
+  String capitalizeAllWord(/* String value */) {
+    var result = this[0].toUpperCase();
     // ignore: unnecessary_this
     for (int i = 1; i < this.length; i++) {
       if (this[i - 1] == " ") {
@@ -1172,41 +767,3 @@ extension StringExtension on String {
     return result;
   }
 }
-
-//Custom InputFormatter
-/*class NumberFormatter extends TextInputFormatter {
-  @override
-  TextEditingValue formatEditUpdate(
-      TextEditingValue oldValue, TextEditingValue newValue) {
-    var text = newValue.text;
-
-    if (newValue.selection.baseOffset == 0) {
-      return newValue;
-    }
-
-    // var buffer = new StringBuffer();
-    var buffer = StringBuffer();
-    for (int i = 0; i < text.length; i++) {
-      buffer.write(text[i]);
-      var nonZeroIndex = i + 1;
-      print(text.length);
-      if (nonZeroIndex <= 5) {
-        print("non");
-        print(nonZeroIndex);
-        if (nonZeroIndex % 5 == 0 && nonZeroIndex != text.length) {
-          buffer.write('-'); // Add double spaces.
-        }
-      } else {
-        if (nonZeroIndex % 12 == 0 && nonZeroIndex != text.length) {
-          buffer.write('-'); // Add double spaces.
-        }
-      }
-    }
-
-    var string = buffer.toString();
-    return newValue.copyWith(
-        text: string,
-        // selection: new TextSelection.collapsed(offset: string.length));
-        selection: TextSelection.collapsed(offset: string.length));
-  }
-} */

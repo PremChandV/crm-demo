@@ -51,7 +51,7 @@ class MyApp extends StatelessWidget {
             ),
         '/UsersPage': (BuildContext context) => UsersPage(context),
         '/ProductsPage': (BuildContext context) => const ProductsPage(
-              title: 'Products',
+              // title: 'Products',
             ),
         '/ClientsPage': (BuildContext context) => const ClientsPage(
               title: 'Clients',

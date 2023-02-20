@@ -4,7 +4,6 @@ import 'dart:convert';
 import '../admin_page.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:easy_sidemenu/easy_sidemenu.dart';
 import 'package:email_validator/email_validator.dart';
 
 class AddUserPage extends StatefulWidget {
@@ -18,53 +17,42 @@ class AddUserPage extends StatefulWidget {
 }
 
 class AddUserPageState extends State<AddUserPage> {
-  PageController page = PageController();
+  var appBarHeight = AppBar().preferredSize.height;
+
+  String address = "";
+  String alterMobile = "";
+  String birthDate = "";
+  String city = "";
+  String country = "";
+  String description = "";
+  String email = "";
+  String extension = "";
+  String firstName = "";
+  String gender = "";
+  String job = "";
+  String joinDate = "";
+  String lastName = "";
+  String mobile = "";
+  String pass = "";
+  String photo = "";
+  String postalCode = "";
+  String region = "";
+  String reportTo = "";
 
   //Create the (Global) Keys
   final GlobalKey<FormState> _formKey = GlobalKey();
-  final GlobalKey<ScaffoldState> _drawerscaffoldkey =
-      GlobalKey<ScaffoldState>();
 
-  var appBarHeight = AppBar().preferredSize.height;
-
-  String firstName = "";
-  String lastName = "";
-  String job = "";
-  String email = "";
-  String pass = "";
-  String gender = "";
-  String extension = "";
-  String mobile = "";
-  String alterMobile = "";
-  String birthDate = "";
-  String joinDate = "";
-  String photo = "";
-  String address = "";
-  String city = "";
-  String country = "";
-  String region = "";
-  String postalCode = "";
-  String reportTo = "";
-  String description = "";
-
-  String msg = "New User added Successfully..!";
-  String msgErr = "The User is already Exist..!";
-
-/*var dob;
-  var gend;
-  var exten;
-  var regn;
-  var report; */
+  PageController page = PageController();
+  TextEditingController firstNameController = TextEditingController();
+  TextEditingController lastNameController = TextEditingController();
+  TextEditingController jobController = TextEditingController();
+  TextEditingController emailController = TextEditingController();
+  TextEditingController psw = TextEditingController();
 
   bool _passwordVisible = true;
 
-  TextEditingController psw = TextEditingController();
-  TextEditingController dateinput = TextEditingController();
-
 //================================= 'Send Data' API ===============================
   Future/*<UsersPage>*/ senddata() async {
-    //log('data: $firstName');
-
     var response = await http
         .post(Uri.parse("http://localhost/crm/user_register.php"), headers: {
       "Accept": "application/json",
@@ -100,10 +88,10 @@ class AddUserPageState extends State<AddUserPage> {
               style: TextStyle(
                 fontWeight: FontWeight.bold,
               )),
-          /*content: SingleChildScrollView(
+          /* content: SingleChildScrollView(
             child: Column(
-              //children: const <Widget>[],
-            ),
+                //children: const <Widget>[],
+                ),
           ), */
           actions: <Widget>[
             Row(
@@ -141,15 +129,9 @@ class AddUserPageState extends State<AddUserPage> {
         jsonDecode(response.body); //Some Unexpected Exception here...
 
     if (datauser == 0) {
-      setState(() {
-        /* msg = "The User is already Exist..!";
-        print('data: $msg'); */
-      });
+      setState(() {});
     } else {
-      setState(() {
-        /* msg = "New User added Successfully..!";
-        print('data: $msgErr'); */
-      });
+      setState(() {});
     }
     return const AddUserPage(
       title: '',
@@ -249,12 +231,9 @@ class AddUserPageState extends State<AddUserPage> {
     );
   }
 
-//
-//
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-//
 //============================== Appbar code here... ==============================
         appBar: AppBar(title: const Text("Users Page"), actions: <Widget>[
           DropdownButtonHideUnderline(
@@ -300,179 +279,11 @@ class AddUserPageState extends State<AddUserPage> {
             ),
           ),
         ]),
-//
-        body: Scaffold(
-          //second scaffold
-          key: _drawerscaffoldkey, //set gobal key defined above
-//======================================== Drawer code here... ==========================
-
-          drawer: Row(children: [
-            SideMenu(
-              //controller: sideMenu,
-              controller: page,
-              style: SideMenuStyle(
-                //showTooltip: false,
-                displayMode: SideMenuDisplayMode.auto,
-                hoverColor: Colors.blue[100],
-                selectedColor: Colors.blue,
-                selectedTitleTextStyle: const TextStyle(color: Colors.white),
-                selectedIconColor: Colors.white,
-                decoration: const BoxDecoration(
-                  //borderRadius: BorderRadius.all(Radius.circular(10)),
-                  color: Colors.black12,
-                  border: Border(
-                    right: BorderSide(
-                      color: Colors.black,
-                      width: 1.0,
-                    ),
-                  ),
-                  /*boxShadow: [
-                  BoxShadow(
-                    color: Colors.grey,
-                    offset: Offset(5.0, 0.0),
-                    blurRadius: 10.0,
-                    spreadRadius: 0.0,
-                  ),
-                ], */
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.white,
-                      offset: Offset(0.0, 0.0),
-                      blurRadius: 0.0,
-                      spreadRadius: 0.0,
-                    ),
-                  ],
-                  //backgroundBlendMode: BlendMode.color
-                ), /*backgroundColor: Colors.black12*/
-              ),
-              title: Column(
-                children: [
-                  const SizedBox(
-                    height: 10,
-                  ),
-                  ConstrainedBox(
-                    constraints: const BoxConstraints(
-                      maxHeight: 150,
-                      maxWidth: 150,
-                    ),
-                    child: Image.asset(
-                      'assets/images/crm_logo.png',
-                    ),
-                  ),
-                  const Divider(
-                    indent: 8.0,
-                    endIndent: 8.0,
-                  ),
-                ],
-              ),
-              footer: const Padding(
-                padding: EdgeInsets.all(8.0),
-                child: Text(
-                  '_____',
-                  style: TextStyle(fontSize: 15),
-                ),
-              ),
-              items: [
-                SideMenuItem(
-                  priority: 0,
-                  title: 'Dashboard',
-                  icon: const Icon(Icons.home),
-                  onTap: () {
-                    Navigator.pushReplacementNamed(context, '/AdminPage');
-                    //sideMenu.changePage(const AdminPage(title: 'Dashboard'));
-                    /*Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) =>
-                                const AdminPage(title: 'Admin Page')),
-                      ); */
-                  },
-                  /*badgeContent: const Text(
-                      '3',
-                      style: TextStyle(color: Colors.white),
-                    ), */
-                  tooltipContent: "Dashboard",
-                ),
-                SideMenuItem(
-                  priority: 1,
-                  title: 'Users',
-                  icon: const Icon(Icons.assignment_ind),
-                  //GestureDetector(
-                  onTap: () {
-                    //const UsersPage(title: 'title');
-                    //Navigator.pushReplacementNamed(context, '/UsersPage');
-                    //sideMenu.changePage('/UsersPage');
-                    //setState(() => const AdminUsersPage());
-                    /*Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => const UsersPage(title: 'Users'))); */
-                    /*Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => const UsersPage(
-                                  title: 'Users',
-                                )),
-                      ); */
-                  },
-                  //),
-                ),
-                SideMenuItem(
-                  priority: 2,
-                  title: 'Products',
-                  icon: const Icon(Icons.ballot),
-                  onTap: () {
-                    //sideMenu.changePage(const UsersPage(title: '',));
-                    Navigator.pushReplacementNamed(context, '/ProductsPage');
-                  },
-                  /*trailing: Container(
-                        decoration: const BoxDecoration(
-                            color: Colors.amber,
-                            borderRadius: BorderRadius.all(Radius.circular(6))),
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 6.0, vertical: 3),
-                          child: Text(
-                            'New',
-                            style: TextStyle(fontSize: 11, color: Colors.grey[800]),
-                          ),
-                        )), */
-                ),
-                SideMenuItem(
-                  priority: 3,
-                  title: 'Clients',
-                  icon: const Icon(Icons.supervisor_account),
-                  onTap: () {
-                    //sideMenu.changePage(page);
-                    Navigator.pushReplacementNamed(context, '/ClientsPage');
-                  },
-                ),
-                SideMenuItem(
-                  priority: 4,
-                  title: 'Reports',
-                  icon: const Icon(Icons.analytics),
-                  onTap: () {
-                    //sideMenu.changePage(page);
-                    Navigator.pushReplacementNamed(context, '/ReportsPage');
-                  },
-                ),
-                SideMenuItem(
-                  priority: 7,
-                  title: 'Payments',
-                  icon: const Icon(Icons.credit_card),
-                  onTap: () {
-                    //sideMenu.changePage(page);
-                    Navigator.pushReplacementNamed(context, '/PaymentsPage');
-                  },
-                ),
-              ],
-            ),
-          ]),
-//
 //====================================== Body Code Here... =============================
+//Second Scaffold
+        body: Scaffold(
           body: Center(
             child: SingleChildScrollView(
-              // ignore: sort_child_properties_last
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Column(
@@ -494,6 +305,7 @@ class AddUserPageState extends State<AddUserPage> {
                         children: <Widget>[
 //================================== "First Name" Text Field Code... ========================
                           TextFormField(
+                            controller: firstNameController,
                             decoration: const InputDecoration(
                                 labelText: 'First Name',
                                 enabledBorder: OutlineInputBorder(
@@ -503,17 +315,6 @@ class AddUserPageState extends State<AddUserPage> {
                                       color: Colors.grey, width: 0.0),
                                 ),
                                 border: OutlineInputBorder()),
-                            onFieldSubmitted: (value) {
-                              setState(() {
-                                firstName = value.capitalizeAllWord();
-                                // firstNameList.add(firstName);
-                              });
-                            },
-                            onChanged: (value) {
-                              setState(() {
-                                firstName = value.capitalizeAllWord();
-                              });
-                            },
                             validator: (value) {
                               if (value == null ||
                                   value.isEmpty ||
@@ -525,12 +326,24 @@ class AddUserPageState extends State<AddUserPage> {
                               }
                               return null;
                             },
+                            onFieldSubmitted: (value) {
+                              setState(() {
+                                firstName = value.capitalizeAllWord();
+                                // firstNameList.add(firstName);
+                              });
+                            },
+                            onChanged: (value) {
+                              setState(() {
+                                firstName = value.capitalizeAllWord();
+                              });
+                            },
                           ),
                           const SizedBox(
                             height: 20,
                           ),
 //=================================== "Last Name" Text Field Code... =========================
                           TextFormField(
+                            controller: lastNameController,
                             decoration: const InputDecoration(
                                 labelText: 'Last Name',
                                 enabledBorder: OutlineInputBorder(
@@ -568,7 +381,7 @@ class AddUserPageState extends State<AddUserPage> {
                           ),
 //====================================== "Job Role" Text Field Code... ========================
                           TextFormField(
-                            //controller: job,
+                            controller: jobController,
                             decoration: const InputDecoration(
                                 labelText: 'Job Role',
                                 enabledBorder: OutlineInputBorder(
@@ -605,7 +418,7 @@ class AddUserPageState extends State<AddUserPage> {
                           ),
 //=================================== "Email ID" Text Field Code... =========================
                           TextFormField(
-                            //controller: email,
+                            controller: emailController,
                             decoration: const InputDecoration(
                                 labelText: 'Email ID',
                                 enabledBorder: OutlineInputBorder(
@@ -1243,7 +1056,7 @@ class AddUserPageState extends State<AddUserPage> {
                           ),
 //========================================= Submit Button Code... ===========================
                           const SizedBox(
-                            height: 30,
+                            height: 45.0,
                           ),
                           ElevatedButton(
                             style: ElevatedButton.styleFrom(
